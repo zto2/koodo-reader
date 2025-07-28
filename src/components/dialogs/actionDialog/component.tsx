@@ -4,7 +4,9 @@ import { Trans } from "react-i18next";
 import { ActionDialogProps, ActionDialogState } from "./interface";
 import toast from "react-hot-toast";
 import MoreAction from "../moreAction";
+import FlomoExportAction from "../flomoExportAction";
 import { ConfigService } from "../../../assets/lib/kookit-extra-browser.min";
+import FlomoBulkExportService from "../../../utils/service/flomoBulkExportService";
 declare var window: any;
 class ActionDialog extends React.Component<
   ActionDialogProps,
@@ -16,7 +18,22 @@ class ActionDialog extends React.Component<
       isShowExport: false,
       isShowDetail: false,
       isExceed: false,
+      isShowFlomoExport: false,
     };
+    this.flomoHoverTimeout = null;
+    this.exportHoverTimeout = null;
+  }
+
+  private flomoHoverTimeout: NodeJS.Timeout | null = null;
+  private exportHoverTimeout: NodeJS.Timeout | null = null;
+
+  componentWillUnmount() {
+    if (this.flomoHoverTimeout) {
+      clearTimeout(this.flomoHoverTimeout);
+    }
+    if (this.exportHoverTimeout) {
+      clearTimeout(this.exportHoverTimeout);
+    }
   }
   handleDeleteBook = () => {
     this.props.handleReadingBook(this.props.currentBook);
@@ -70,6 +87,40 @@ class ActionDialog extends React.Component<
   handleMoreAction = (isShow: boolean) => {
     this.setState({ isShowExport: isShow });
   };
+
+  handleFlomoExportAction = (isShowFlomoExport: boolean) => {
+    this.setState({ isShowFlomoExport });
+  };
+
+  handleFlomoExportNotes = async () => {
+    const flomoBulkService = FlomoBulkExportService.getInstance();
+    if (!flomoBulkService.canBulkExport()) {
+      toast.error("请先在设置中配置 flomo");
+      return;
+    }
+    this.props.handleActionDialog(false);
+    await flomoBulkService.exportNotesToFlomo(this.props.currentBook);
+  };
+
+  handleFlomoExportHighlights = async () => {
+    const flomoBulkService = FlomoBulkExportService.getInstance();
+    if (!flomoBulkService.canBulkExport()) {
+      toast.error("请先在设置中配置 flomo");
+      return;
+    }
+    this.props.handleActionDialog(false);
+    await flomoBulkService.exportHighlightsToFlomo(this.props.currentBook);
+  };
+
+  handleFlomoExportAll = async () => {
+    const flomoBulkService = FlomoBulkExportService.getInstance();
+    if (!flomoBulkService.canBulkExport()) {
+      toast.error("请先在设置中配置 flomo");
+      return;
+    }
+    this.props.handleActionDialog(false);
+    await flomoBulkService.exportAllToFlomo(this.props.currentBook);
+  };
   render() {
     const moreActionProps = {
       left: this.props.left,
@@ -77,6 +128,16 @@ class ActionDialog extends React.Component<
       isShowExport: this.state.isShowExport,
       isExceed: this.state.isExceed,
       handleMoreAction: this.handleMoreAction,
+    };
+
+    const flomoExportActionProps = {
+      currentBook: this.props.currentBook,
+      left: this.props.left,
+      top: this.props.top,
+      isShowFlomoExport: this.state.isShowFlomoExport,
+      isExceed: this.state.isExceed,
+      handleFlomoExportAction: this.handleFlomoExportAction,
+      handleActionDialog: this.props.handleActionDialog,
     };
     if (this.props.mode === "trash") {
       return (
@@ -205,9 +266,62 @@ class ActionDialog extends React.Component<
                 <Trans>Details</Trans>
               </p>
             </div>
+            {ConfigService.getReaderConfig("isEnableFlomo") === "yes" && (
+              <div
+                className="action-dialog-edit"
+                onMouseEnter={(event) => {
+                  // Clear any existing timeout
+                  if (this.flomoHoverTimeout) {
+                    clearTimeout(this.flomoHoverTimeout);
+                    this.flomoHoverTimeout = null;
+                  }
+
+                  this.setState({ isShowFlomoExport: true });
+                  const e = event || window.event;
+                  let x = e.clientX;
+                  if (x > document.body.clientWidth - 300) {
+                    this.setState({ isExceed: true });
+                  } else {
+                    this.setState({ isExceed: false });
+                  }
+                }}
+                onMouseLeave={(event) => {
+                  // Add delay before hiding to improve stability
+                  this.flomoHoverTimeout = setTimeout(() => {
+                    this.setState({ isShowFlomoExport: false });
+                  }, 150);
+                  event.stopPropagation();
+                }}
+                style={{ display: "flex", justifyContent: "space-between" }}
+              >
+                <p className="action-name" style={{ marginLeft: "0px" }}>
+                  <span
+                    className="icon-export view-icon"
+                    style={{
+                      display: "inline-block",
+                      marginRight: "12px",
+                      marginLeft: "3px",
+                      fontSize: "16px",
+                      color: "#ff6b35"
+                    }}
+                  ></span>
+                  <Trans>Export to flomo</Trans>
+                </p>
+                <span
+                  className="icon-dropdown icon-export-all"
+                  style={{ left: "95px" }}
+                ></span>
+              </div>
+            )}
             <div
               className="action-dialog-edit"
               onMouseEnter={(event) => {
+                // Clear any existing timeout
+                if (this.exportHoverTimeout) {
+                  clearTimeout(this.exportHoverTimeout);
+                  this.exportHoverTimeout = null;
+                }
+
                 this.setState({ isShowExport: true });
                 const e = event || window.event;
                 let x = e.clientX;
@@ -218,7 +332,10 @@ class ActionDialog extends React.Component<
                 }
               }}
               onMouseLeave={(event) => {
-                this.setState({ isShowExport: false });
+                // Add delay before hiding to improve stability
+                this.exportHoverTimeout = setTimeout(() => {
+                  this.setState({ isShowExport: false });
+                }, 150);
                 event.stopPropagation();
               }}
               style={{ display: "flex", justifyContent: "space-between" }}
@@ -245,6 +362,7 @@ class ActionDialog extends React.Component<
           </div>
         </div>
         <MoreAction {...moreActionProps} />
+        <FlomoExportAction {...flomoExportActionProps} />
       </>
     );
   }

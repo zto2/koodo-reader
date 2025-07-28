@@ -384,3 +384,12 @@ export const sampleQuestion = [
     question: "Explain Stoicism and its principles to me",
   },
 ];
+
+export const flomoSettingList = [
+  {
+    isElectron: false,
+    title: "Enable flomo integration",
+    desc: "Enable this option to export highlights to your flomo account",
+    propName: "isEnableFlomo",
+  },
+];

@@ -30,4 +30,5 @@ export interface ActionDialogState {
   isShowExport: boolean;
   isShowDetail: boolean;
   isExceed: boolean;
+  isShowFlomoExport: boolean;
 }

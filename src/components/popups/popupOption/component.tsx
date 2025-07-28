@@ -12,6 +12,7 @@ import copy from "copy-text-to-clipboard";
 import { getIframeDoc } from "../../../utils/reader/docUtil";
 import { openExternalUrl } from "../../../utils/common";
 import DatabaseService from "../../../utils/storage/databaseService";
+import { FlomoService } from "../../../utils/service/flomoService";
 
 declare var window: any;
 
@@ -229,6 +230,79 @@ class PopupOption extends React.Component<PopupOptionProps> {
     }
   };
 
+  handleFlomo = async () => {
+    try {
+      // 检查flomo是否已配置
+      const flomoService = FlomoService.getInstance();
+      if (!flomoService.isConfigured()) {
+        toast.error(this.props.t("Please configure flomo in settings first"));
+        return;
+      }
+
+      // 获取选中的文本
+      const selectedText = getSelection(this.props.currentBook.format);
+      if (!selectedText) {
+        toast.error(this.props.t("No text selected"));
+        return;
+      }
+
+      // 获取书籍信息
+      const book = this.props.currentBook;
+      const chapter = this.props.chapter;
+
+      // 获取位置信息
+      let bookLocation = ConfigService.getObjectConfig(
+        this.props.currentBook.key,
+        "recordLocation",
+        {}
+      );
+      let pageNumber = "";
+      if (this.props.currentBook.format === "PDF") {
+        let location = this.props.htmlBook.rendition.getPositionByChapter(
+          this.props.chapterDocIndex
+        );
+        pageNumber = location.page ? location.page.toString() : "";
+      }
+
+      // 准备导出数据
+      const exportData = {
+        text: selectedText,
+        bookTitle: book.name || "Unknown Book",
+        bookAuthor: book.author || "Unknown Author",
+        chapter: chapter || "",
+        pageNumber: pageNumber,
+        location: bookLocation.percentage ? `${bookLocation.percentage}%` : ""
+      };
+
+      // 显示加载状态
+      const loadingToast = toast.loading(this.props.t("Exporting to flomo..."));
+
+      // 导出到flomo
+      const result = await flomoService.exportToFlomo(exportData);
+
+      // 关闭加载状态
+      toast.dismiss(loadingToast);
+
+      if (result.success) {
+        toast.success(result.message || this.props.t("Successfully exported to flomo"));
+        this.props.handleOpenMenu(false);
+
+        // 清除选择
+        let docs = getIframeDoc(this.props.currentBook.format);
+        for (let i = 0; i < docs.length; i++) {
+          let doc = docs[i];
+          if (!doc) continue;
+          doc.getSelection()?.empty();
+        }
+      } else {
+        toast.error(result.error || this.props.t("Failed to export to flomo"));
+      }
+    } catch (error) {
+      console.error("Error exporting to flomo:", error);
+      toast.error(this.props.t("An error occurred while exporting to flomo"));
+    }
+  };
+
   render() {
     const PopupProps = {
       handleDigest: this.handleDigest,
@@ -267,6 +341,9 @@ class PopupOption extends React.Component<PopupOptionProps> {
                         break;
                       case 7:
                         this.handleSpeak();
+                        break;
+                      case 8:
+                        this.handleFlomo();
                         break;
                       default:
                         break;

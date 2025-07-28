@@ -405,7 +405,9 @@ const createMainWin = () => {
     }
   });
 
+  //异步操作，打开后会立即返回 promise 对象
   ipcMain.handle("select-book", async (event, config) => {
+    //显示一个原生的“打开文件”或“打开文件夹”的对话框
     const result = await dialog.showOpenDialog({
       properties: ['openFile', 'multiSelections'],
       filters: [{
@@ -422,6 +424,7 @@ const createMainWin = () => {
       return filePaths;
     }
   });
+
   ipcMain.handle("database-command", async (event, config) => {
     const { SqlStatement } = await import('./src/assets/lib/kookit-extra.min.mjs');
     let { statement, statementType, executeType, dbName, data, storagePath } = config;

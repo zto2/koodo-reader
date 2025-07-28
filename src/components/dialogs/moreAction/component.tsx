@@ -19,19 +19,36 @@ import * as Kookit from "../../../assets/lib/kookit.min";
 import { isElectron } from "react-device-detect";
 import { getPdfPassword, getStorageLocation } from "../../../utils/common";
 class ActionDialog extends React.Component<MoreActionProps, MoreActionState> {
+  private hoverTimeout: NodeJS.Timeout | null = null;
+
   constructor(props: MoreActionProps) {
     super(props);
     this.state = {};
+  }
+
+  componentWillUnmount() {
+    if (this.hoverTimeout) {
+      clearTimeout(this.hoverTimeout);
+    }
   }
   render() {
     return (
       <div
         className="action-dialog-container"
         onMouseLeave={() => {
-          this.props.handleMoreAction(false);
-          this.props.handleActionDialog(false);
+          // Add delay before hiding to improve stability
+          this.hoverTimeout = setTimeout(() => {
+            this.props.handleMoreAction(false);
+            this.props.handleActionDialog(false);
+          }, 200);
         }}
         onMouseEnter={(event) => {
+          // Clear any existing timeout
+          if (this.hoverTimeout) {
+            clearTimeout(this.hoverTimeout);
+            this.hoverTimeout = null;
+          }
+
           this.props.handleMoreAction(true);
           this.props.handleActionDialog(true);
           event?.stopPropagation();

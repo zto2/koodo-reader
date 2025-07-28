@@ -1,0 +1,215 @@
+.flomo-setting-container {
+  padding: 20px 0;
+  max-width: 600px;
+}
+
+.flomo-webhook-container {
+  margin-top: 25px;
+  padding: 20px;
+  background-color: rgba(248, 248, 248, 1);
+  border-radius: 8px;
+  border: 1px solid rgba(75, 75, 75, 0.1);
+}
+
+.flomo-webhook-input-container {
+  margin-bottom: 20px;
+}
+
+.flomo-webhook-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: rgba(75, 75, 75, 1);
+  letter-spacing: 0.3px;
+}
+
+.flomo-webhook-input {
+  width: 100%;
+  max-width: 100%;
+  padding: 12px 16px;
+  border: 2px solid rgba(75, 75, 75, 0.1);
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: rgba(255, 255, 255, 1);
+  color: rgba(75, 75, 75, 1);
+  transition: all 0.3s ease;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+}
+
+.flomo-webhook-input:focus {
+  outline: none;
+  border-color: rgba(75, 75, 75, 1);
+  box-shadow: 0 0 0 3px rgba(75, 75, 75, 0.15);
+  transform: translateY(-1px);
+}
+
+.flomo-webhook-input:disabled {
+  background-color: rgba(248, 248, 248, 1);
+  color: rgba(75, 75, 75, 0.4);
+  cursor: not-allowed;
+}
+
+.flomo-webhook-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.flomo-webhook-button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.flomo-save-button {
+  background: linear-gradient(135deg, rgba(75, 75, 75, 1), rgba(60, 60, 60, 1));
+  color: white;
+  box-shadow: 0 4px 12px rgba(75, 75, 75, 0.3);
+}
+
+.flomo-save-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(75, 75, 75, 0.4);
+}
+
+.flomo-test-button {
+  background-color: rgba(248, 248, 248, 1);
+  color: rgba(75, 75, 75, 1);
+  border: 2px solid rgba(75, 75, 75, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.flomo-test-button:hover:not(:disabled) {
+  background-color: rgba(240, 240, 240, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.flomo-webhook-button:disabled {
+  background-color: rgba(248, 248, 248, 1);
+  color: rgba(75, 75, 75, 0.4);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.flomo-instructions {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: rgba(240, 248, 255, 1);
+  border-radius: 8px;
+  border-left: 4px solid rgba(75, 75, 75, 1);
+}
+
+.flomo-instructions-list {
+  margin: 20px 0;
+  padding-left: 25px;
+}
+
+.flomo-instructions-list li {
+  margin-bottom: 12px;
+  line-height: 1.6;
+  color: rgba(75, 75, 75, 1);
+  position: relative;
+}
+
+.flomo-instructions-list li::marker {
+  color: rgba(75, 75, 75, 1);
+  font-weight: bold;
+}
+
+.flomo-link {
+  color: rgba(75, 75, 75, 1);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.flomo-link:hover {
+  text-decoration: underline;
+}
+
+.flomo-note {
+  background: linear-gradient(135deg, rgba(255, 248, 220, 1), rgba(240, 248, 255, 1));
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(75, 75, 75, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.flomo-note::before {
+  content: "💡";
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  font-size: 18px;
+}
+
+.flomo-note strong {
+  color: rgba(75, 75, 75, 1);
+  margin-left: 30px;
+}
+
+/* 简化样式，移除复杂的主题支持 */
+
+/* 使用标准的设置选项样式 */
+.setting-option-subtitle {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-left: 25px;
+  margin-right: 25px;
+  line-height: 15px;
+}
+
+/* 改进标题样式 */
+.setting-dialog-new-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: rgba(75, 75, 75, 1);
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(75, 75, 75, 1);
+  display: inline-block;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .flomo-setting-container {
+    padding: 15px 0;
+  }
+
+  .flomo-webhook-container {
+    padding: 15px;
+    margin-top: 20px;
+  }
+
+  .flomo-webhook-input {
+    max-width: 100%;
+  }
+
+  .flomo-webhook-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .flomo-webhook-button {
+    width: 100%;
+  }
+
+  .flomo-instructions {
+    padding: 15px;
+    margin-top: 20px;
+  }
+}

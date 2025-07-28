@@ -22,6 +22,7 @@ import GeneralSetting from "../../../containers/settings/generalSetting";
 import SyncSetting from "../../../containers/settings/syncSetting";
 import AccountSetting from "../../../containers/settings/accountSetting";
 import PluginSetting from "../../../containers/settings/pluginSetting";
+import FlomoSetting from "../../../containers/settings/flomoSetting";
 declare var window: any;
 class SettingDialog extends React.Component<
   SettingInfoProps,
@@ -344,6 +345,19 @@ class SettingDialog extends React.Component<
             <span
               className="book-bookmark-title"
               style={
+                this.props.settingMode === "flomo"
+                  ? { fontWeight: "bold", borderBottom: "2px solid" }
+                  : { opacity: 0.5 }
+              }
+              onClick={() => {
+                this.props.handleSettingMode("flomo");
+              }}
+            >
+              <Trans>flomo</Trans>
+            </span>
+            <span
+              className="book-bookmark-title"
+              style={
                 this.props.settingMode === "account"
                   ? { fontWeight: "bold", borderBottom: "2px solid" }
                   : { opacity: 0.5 }
@@ -478,6 +492,8 @@ class SettingDialog extends React.Component<
             </>
           ) : this.props.settingMode === "sync" ? (
             <SyncSetting />
+          ) : this.props.settingMode === "flomo" ? (
+            <FlomoSetting />
           ) : this.props.settingMode === "account" ? (
             <AccountSetting />
           ) : (
