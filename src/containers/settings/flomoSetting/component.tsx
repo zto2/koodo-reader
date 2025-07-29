@@ -4,6 +4,7 @@ import { ConfigService } from "../../../assets/lib/kookit-extra-browser.min";
 import { Trans } from "react-i18next";
 import toast from "react-hot-toast";
 import { FlomoService } from "../../../utils/service/flomoService";
+import { FlomoLimitService } from "../../../utils/service/flomoLimitService";
 import "./flomoSetting.css";
 
 class FlomoSetting extends React.Component<
@@ -16,8 +17,20 @@ class FlomoSetting extends React.Component<
       isEnableFlomo: ConfigService.getReaderConfig("isEnableFlomo") === "yes",
       flomoWebhookUrl: ConfigService.getReaderConfig("flomoWebhookUrl") || "",
       isTesting: false,
+      usageStats: FlomoLimitService.getUsageStats(),
     };
   }
+
+  componentDidMount() {
+    // 定期更新使用统计
+    this.updateUsageStats();
+  }
+
+  updateUsageStats = () => {
+    this.setState({
+      usageStats: FlomoLimitService.getUsageStats()
+    });
+  };
 
   handleEnableFlomo = () => {
     const newValue = !this.state.isEnableFlomo;
@@ -115,6 +128,50 @@ class FlomoSetting extends React.Component<
         <p className="setting-option-subtitle">
           <Trans>Enable this option to export highlights to your flomo account</Trans>
         </p>
+
+        {/* Daily Usage Statistics */}
+        {isEnableFlomo && (
+          <div className="flomo-usage-stats-container">
+            <div className="setting-dialog-new-title" style={{ marginTop: "20px" }}>
+              <Trans>Daily Usage Statistics</Trans>
+            </div>
+
+            <div className="flomo-usage-stats">
+              <div className="flomo-usage-info">
+                <span className="flomo-usage-text">
+                  <Trans>Used</Trans>: {this.state.usageStats.used}/{this.state.usageStats.limit}
+                </span>
+                <span className="flomo-usage-remaining">
+                  <Trans>Remaining</Trans>: {this.state.usageStats.remaining}
+                </span>
+              </div>
+
+              <div className="flomo-usage-progress-container">
+                <div className="flomo-usage-progress-bar">
+                  <div
+                    className="flomo-usage-progress-fill"
+                    style={{
+                      width: `${this.state.usageStats.percentage}%`,
+                      backgroundColor: this.state.usageStats.percentage > 80 ? '#ff4757' :
+                                     this.state.usageStats.percentage > 60 ? '#ffa502' : '#2ed573'
+                    }}
+                  ></div>
+                </div>
+                <span className="flomo-usage-percentage">
+                  {this.state.usageStats.percentage}%
+                </span>
+              </div>
+
+              <button
+                className="flomo-refresh-stats-button"
+                onClick={this.updateUsageStats}
+                title="Refresh usage statistics"
+              >
+                <span className="icon-refresh"></span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Webhook URL configuration */}
         <div className="setting-dialog-new-title" style={{ marginTop: "20px" }}>

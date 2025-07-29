@@ -80,15 +80,22 @@ class PopupNote extends React.Component<PopupNoteProps, PopupNoteState> {
         this.props.handleMenuMode("");
         this.props.handleNoteKey("");
         this.props.handleShowPopupNote(false);
-        if (this.props.htmlBook.rendition) {
-          this.props.htmlBook.rendition.removeOneNote(
-            this.props.noteKey,
-            this.props.chapterDocIndex
-          );
-          this.props.htmlBook.rendition.createOneNote(
-            newNote,
-            this.handleNoteClick
-          );
+
+        // Add null checks for htmlBook and rendition
+        if (this.props.htmlBook && this.props.htmlBook.rendition) {
+          try {
+            this.props.htmlBook.rendition.removeOneNote(
+              this.props.noteKey,
+              this.props.chapterDocIndex
+            );
+            this.props.htmlBook.rendition.createOneNote(
+              newNote,
+              this.handleNoteClick
+            );
+          } catch (error) {
+            console.warn("Error updating note in rendition:", error);
+            // Continue execution even if rendition update fails
+          }
         }
       });
     } else {
@@ -99,21 +106,33 @@ class PopupNote extends React.Component<PopupNoteProps, PopupNoteState> {
           {}
         )
       );
-      if (
-        this.props.currentBook.format === "PDF" &&
-        ConfigService.getReaderConfig("isConvertPDF") !== "yes"
-      ) {
-        let bookLocation = this.props.htmlBook.rendition.getPositionByChapter(
-          this.props.chapterDocIndex
-        );
-        cfi = JSON.stringify(bookLocation);
+      if (this.props.currentBook.format === "PDF" && this.props.htmlBook && this.props.htmlBook.rendition&&ConfigService.getReaderConfig("isConvertPDF") !== "yes") {
+        try {
+          let bookLocation = this.props.htmlBook.rendition.getPositionByChapter(
+            this.props.chapterDocIndex
+          );
+          cfi = JSON.stringify(bookLocation);
+        } catch (error) {
+          console.warn("Error getting PDF position:", error);
+        }
       }
+
       let bookKey = this.props.currentBook.key;
-      let range = JSON.stringify(
-        await this.props.htmlBook.rendition.getHightlightCoords(
-          this.props.chapterDocIndex
-        )
-      );
+      let range = "{}"; // Default empty range
+
+      // Add null checks for rendition access
+      if (this.props.htmlBook && this.props.htmlBook.rendition) {
+        try {
+          range = JSON.stringify(
+            await this.props.htmlBook.rendition.getHightlightCoords(
+              this.props.chapterDocIndex
+            )
+          );
+        } catch (error) {
+          console.warn("Error getting highlight coords:", error);
+          range = "{}";
+        }
+      }
 
       let percentage = ConfigService.getObjectConfig(
         this.props.currentBook.key,
@@ -147,10 +166,19 @@ class PopupNote extends React.Component<PopupNoteProps, PopupNoteState> {
         toast.success(this.props.t("Addition successful"));
         this.props.handleFetchNotes();
         this.props.handleMenuMode("");
-        await this.props.htmlBook.rendition.createOneNote(
-          note,
-          this.handleNoteClick
-        );
+
+        // Add null checks for rendition access
+        if (this.props.htmlBook && this.props.htmlBook.rendition) {
+          try {
+            await this.props.htmlBook.rendition.createOneNote(
+              note,
+              this.handleNoteClick
+            );
+          } catch (error) {
+            console.warn("Error creating note in rendition:", error);
+            // Continue execution even if rendition update fails
+          }
+        }
       });
     }
   }
@@ -162,11 +190,18 @@ class PopupNote extends React.Component<PopupNoteProps, PopupNoteState> {
         this.props.handleMenuMode("");
         this.props.handleFetchNotes();
         this.props.handleNoteKey("");
-        if (this.props.htmlBook.rendition) {
-          this.props.htmlBook.rendition.removeOneNote(
-            this.props.noteKey,
-            this.props.chapterDocIndex
-          );
+
+        // Add null checks for rendition access
+        if (this.props.htmlBook && this.props.htmlBook.rendition) {
+          try {
+            this.props.htmlBook.rendition.removeOneNote(
+              this.props.noteKey,
+              this.props.chapterDocIndex
+            );
+          } catch (error) {
+            console.warn("Error removing note from rendition:", error);
+            // Continue execution even if rendition update fails
+          }
         }
 
         this.props.handleOpenMenu(false);

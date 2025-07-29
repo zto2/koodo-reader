@@ -3,6 +3,8 @@ import BookModel from "../../models/Book";
 import NoteModel from "../../models/Note";
 import { FlomoService } from "./flomoService";
 import toast from "react-hot-toast";
+import { FlomoLimitService } from "./flomoLimitService";
+import i18n from "../../i18n";
 
 export class FlomoBulkExportService {
   private static instance: FlomoBulkExportService;
@@ -30,6 +32,15 @@ export class FlomoBulkExportService {
 
       if (actualNotes.length === 0) {
         toast.error("该书籍没有笔记可导出");
+        return;
+      }
+
+      // 检查每日限制
+      if (!FlomoLimitService.canExport(actualNotes.length)) {
+        const stats = FlomoLimitService.getUsageStats();
+        toast.error(i18n.t("Daily export limit reached") + ` (${stats.used}/${stats.limit}). ` +
+                   i18n.t("Cannot export") + ` ${actualNotes.length} ` + i18n.t("items") +
+                   `, ${i18n.t("remaining")}: ${stats.remaining}`);
         return;
       }
 

@@ -36,6 +36,7 @@
     "hammerjs": "^2.0.8",
     "howler": "^2.2.3",
     "js-untar": "^2.0.0",
+    "jspdf": "^3.0.1",
     "jszip": "^3.10.1",
     "localforage": "^1.10.0",
     "mammoth": "^1.8.0",

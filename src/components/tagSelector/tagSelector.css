@@ -1,0 +1,238 @@
+.tag-selector {
+  background-color: rgba(248, 248, 248, 1);
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid rgba(75, 75, 75, 0.1);
+  margin-bottom: 20px;
+}
+
+.tag-selector-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.tag-search-container {
+  position: relative;
+  flex: 1;
+}
+
+.tag-search-input {
+  width: 100%;
+  padding: 8px 35px 8px 12px;
+  border: 1px solid rgba(75, 75, 75, 0.2);
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+  transition: border-color 0.2s ease;
+}
+
+.tag-search-input:focus {
+  outline: none;
+  border-color: rgba(75, 75, 75, 0.4);
+}
+
+.tag-search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(75, 75, 75, 0.5);
+  font-size: 14px;
+}
+
+.tag-clear-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  color: rgba(75, 75, 75, 0.6);
+  transition: all 0.2s ease;
+}
+
+.tag-clear-button:hover {
+  background-color: rgba(75, 75, 75, 0.1);
+  color: rgba(75, 75, 75, 1);
+}
+
+/* 已选择的标签 */
+.selected-tags-container {
+  margin-bottom: 15px;
+}
+
+.selected-tags-label {
+  font-size: 12px;
+  color: rgba(75, 75, 75, 0.7);
+  margin-bottom: 8px;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.selected-tag {
+  display: flex;
+  align-items: center;
+  background-color: rgba(75, 75, 75, 0.1);
+  border-radius: 16px;
+  padding: 4px 8px 4px 12px;
+  font-size: 12px;
+  color: rgba(75, 75, 75, 1);
+}
+
+.selected-tag-name {
+  margin-right: 6px;
+}
+
+.selected-tag-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 50%;
+  color: rgba(75, 75, 75, 0.6);
+  transition: all 0.2s ease;
+  font-size: 10px;
+}
+
+.selected-tag-remove:hover {
+  background-color: rgba(75, 75, 75, 0.2);
+  color: rgba(75, 75, 75, 1);
+}
+
+/* 标签列表 */
+.tag-list-container {
+  border-top: 1px solid rgba(75, 75, 75, 0.1);
+  padding-top: 15px;
+}
+
+.tag-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.tag-list-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(75, 75, 75, 1);
+}
+
+.tag-list-collapse {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: rgba(75, 75, 75, 0.6);
+  transition: all 0.2s ease;
+}
+
+.tag-list-collapse:hover {
+  background-color: rgba(75, 75, 75, 0.1);
+  color: rgba(75, 75, 75, 1);
+}
+
+.tag-list-collapse .icon-dropdown {
+  transition: transform 0.2s ease;
+}
+
+.tag-list-collapse .icon-dropdown.expanded {
+  transform: rotate(180deg);
+}
+
+.tag-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.tag-list-empty {
+  text-align: center;
+  color: rgba(75, 75, 75, 0.5);
+  font-size: 14px;
+  padding: 20px;
+}
+
+/* 标签项 */
+.tag-item {
+  margin-bottom: 8px;
+}
+
+.tag-item-child {
+  margin-left: 20px;
+  margin-bottom: 4px;
+}
+
+.tag-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 1px solid rgba(75, 75, 75, 0.2);
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tag-button:hover {
+  border-color: rgba(75, 75, 75, 0.4);
+  background-color: rgba(75, 75, 75, 0.05);
+}
+
+.tag-button-selected {
+  border-color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.tag-name {
+  font-size: 14px;
+  color: rgba(75, 75, 75, 1);
+  font-weight: 500;
+}
+
+.tag-button-selected .tag-name {
+  color: #007bff;
+}
+
+.tag-count {
+  font-size: 12px;
+  color: rgba(75, 75, 75, 0.6);
+}
+
+.tag-button-selected .tag-count {
+  color: rgba(0, 123, 255, 0.8);
+}
+
+.tag-children {
+  margin-top: 8px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .tag-selector {
+    padding: 12px;
+  }
+  
+  .selected-tags {
+    gap: 4px;
+  }
+  
+  .selected-tag {
+    font-size: 11px;
+    padding: 3px 6px 3px 10px;
+  }
+  
+  .tag-button {
+    padding: 6px 10px;
+  }
+  
+  .tag-name {
+    font-size: 13px;
+  }
+}

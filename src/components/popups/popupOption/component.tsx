@@ -83,11 +83,21 @@ class PopupOption extends React.Component<PopupOptionProps> {
       }
     }
 
-    let range = JSON.stringify(
-      await this.props.htmlBook.rendition.getHightlightCoords(
-        this.props.chapterDocIndex
-      )
-    );
+    let range = "{}"; // Default empty range
+
+    // Add null checks for rendition access
+    if (this.props.htmlBook && this.props.htmlBook.rendition) {
+      try {
+        range = JSON.stringify(
+          await this.props.htmlBook.rendition.getHightlightCoords(
+            this.props.chapterDocIndex
+          )
+        );
+      } catch (error) {
+        console.warn("Error getting highlight coords:", error);
+        range = "{}";
+      }
+    }
     if (!text) return;
     text = text.replace(/\s\s/g, "");
     text = text.replace(/\r/g, "");
@@ -111,10 +121,19 @@ class PopupOption extends React.Component<PopupOptionProps> {
       toast.success(this.props.t("Addition successful"));
       this.props.handleFetchNotes();
       this.props.handleMenuMode("");
-      await this.props.htmlBook.rendition.createOneNote(
-        digest,
-        this.handleNoteClick
-      );
+
+      // Add null checks for rendition access
+      if (this.props.htmlBook && this.props.htmlBook.rendition) {
+        try {
+          await this.props.htmlBook.rendition.createOneNote(
+            digest,
+            this.handleNoteClick
+          );
+        } catch (error) {
+          console.warn("Error creating note in rendition:", error);
+          // Continue execution even if rendition update fails
+        }
+      }
     });
   };
 

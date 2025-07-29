@@ -27,8 +27,9 @@ export interface ActionDialogProps extends RouteComponentProps<any> {
   handleSelectedBooks: (selectedBooks: string[]) => void;
 }
 export interface ActionDialogState {
-  isShowExport: boolean;
+  isShowExport: boolean; // 恢复更多操作菜单状态
   isShowDetail: boolean;
   isExceed: boolean;
   isShowFlomoExport: boolean;
+  isShowUnifiedExport: boolean;
 }

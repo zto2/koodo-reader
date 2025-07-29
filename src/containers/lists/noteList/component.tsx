@@ -5,14 +5,19 @@ import CardList from "../cardList";
 import NoteTag from "../../../components/noteTag";
 import NoteModel from "../../../models/Note";
 import Empty from "../../emptyPage";
+import TagSelector from "../../../components/tagSelector/component";
+import { TagService } from "../../../utils/service/tagService";
 import { Trans } from "react-i18next";
 
 class NoteList extends React.Component<NoteListProps, NoteListState> {
+  private tagService = TagService.getInstance();
+
   constructor(props: NoteListProps) {
     super(props);
     this.state = {
       tag: [],
       currentSelectedBook: "",
+      selectedTags: [],
     };
   }
   UNSAFE_componentWillMount() {
@@ -20,6 +25,10 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
   }
   handleTag = (tag: string[]) => {
     this.setState({ tag });
+  };
+
+  handleTagsChange = (selectedTags: string[]) => {
+    this.setState({ selectedTags });
   };
   handleFilter = (items: any, arr: number[]) => {
     let itemArr: any[] = [];
@@ -45,6 +54,45 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
     return temp;
   };
   render() {
+    // Helper function to filter notes based on mode
+    const filterNotesByMode = (notes: any[]) => {
+      if (this.props.tabMode === "knowledge") {
+        // Show all notes and highlights
+        return notes;
+      } else if (this.props.tabMode === "note") {
+        // Show only notes (items with notes content)
+        return notes.filter((item) => item.notes !== "");
+      } else {
+        // Show only highlights (items without notes content)
+        return notes.filter((item) => item.notes === "");
+      }
+    };
+
+    // Apply all filters in sequence
+    let filteredNotes = filterNotesByMode(this.props.notes);
+
+    // Apply search filter
+    if (this.props.isSearch) {
+      filteredNotes = this.handleFilter(filteredNotes, this.props.searchResults);
+    }
+
+    // Apply legacy tag filter (for backward compatibility)
+    if (this.state.tag.length > 0) {
+      filteredNotes = this.filterTag(filteredNotes);
+    }
+
+    // Apply new tag system filter
+    if (this.state.selectedTags.length > 0) {
+      filteredNotes = this.tagService.filterNotesByTags(filteredNotes, this.state.selectedTags);
+    }
+
+    // Apply book filter
+    if (this.state.currentSelectedBook) {
+      filteredNotes = filteredNotes.filter(
+        (item) => item.bookKey === this.state.currentSelectedBook
+      );
+    }
+
     const noteProps = {
       cards: this.props.isSearch
         ? this.handleFilter(
@@ -88,6 +136,17 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
         }
       >
         <div className="note-list-header">
+          {/* 新的标签选择器 */}
+          {this.props.tabMode === "knowledge" && (
+            <TagSelector
+              notes={this.props.notes}
+              selectedTags={this.state.selectedTags}
+              onTagsChange={this.handleTagsChange}
+              t={this.props.t}
+            />
+          )}
+
+          {/* 保留原有的标签组件用于向后兼容 */}
           <div className="note-tags">
             <NoteTag {...{ handleTag: this.handleTag }} />
           </div>
@@ -109,11 +168,15 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
                 {[
                   { value: "", label: this.props.t("Please select") },
                   ...this.props.notes
-                    .filter((item) =>
-                      this.props.tabMode === "note"
-                        ? item.notes !== ""
-                        : item.notes === ""
-                    )
+                    .filter((item) => {
+                      if (this.props.tabMode === "knowledge") {
+                        return true; // Show all notes and highlights
+                      } else if (this.props.tabMode === "note") {
+                        return item.notes !== "";
+                      } else {
+                        return item.notes === "";
+                      }
+                    })
                     .map((note) => {
                       let book = this.props.books.find(
                         (book) => book.key === note.bookKey

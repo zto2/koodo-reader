@@ -2,6 +2,7 @@ import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 import i18n from "../../i18n";
 import BookModel from "../../models/Book";
 import NoteModel from "../../models/Note";
+import { FlomoLimitService } from "./flomoLimitService";
 
 export interface FlomoExportData {
   text: string;
@@ -171,6 +172,12 @@ export class FlomoService {
    * 导出笔记到flomo
    */
   public async exportNoteToFlomo(note: NoteModel, book: BookModel): Promise<void> {
+    // 检查每日限制
+    if (!FlomoLimitService.canExport(1)) {
+      const stats = FlomoLimitService.getUsageStats();
+      throw new Error(i18n.t("Daily export limit reached") + ` (${stats.used}/${stats.limit})`);
+    }
+
     let pageNumber: string | undefined;
     try {
       if (note.cfi) {
@@ -196,12 +203,21 @@ export class FlomoService {
     if (!result.success) {
       throw new Error(result.error || "导出失败");
     }
+
+    // 记录导出成功
+    FlomoLimitService.recordExport(1);
   }
 
   /**
    * 导出高亮到flomo
    */
   public async exportHighlightToFlomo(highlight: NoteModel, book: BookModel): Promise<void> {
+    // 检查每日限制
+    if (!FlomoLimitService.canExport(1)) {
+      const stats = FlomoLimitService.getUsageStats();
+      throw new Error(i18n.t("Daily export limit reached") + ` (${stats.used}/${stats.limit})`);
+    }
+
     let pageNumber: string | undefined;
     try {
       if (highlight.cfi) {
@@ -227,6 +243,9 @@ export class FlomoService {
     if (!result.success) {
       throw new Error(result.error || "导出失败");
     }
+
+    // 记录导出成功
+    FlomoLimitService.recordExport(1);
   }
 
   /**

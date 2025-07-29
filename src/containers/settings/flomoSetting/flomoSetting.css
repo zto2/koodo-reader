@@ -162,6 +162,87 @@
   margin-left: 30px;
 }
 
+/* flomo使用统计样式 */
+.flomo-usage-stats-container {
+  margin-top: 20px;
+}
+
+.flomo-usage-stats {
+  background-color: rgba(248, 248, 248, 1);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid rgba(75, 75, 75, 0.1);
+  position: relative;
+}
+
+.flomo-usage-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.flomo-usage-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(75, 75, 75, 1);
+}
+
+.flomo-usage-remaining {
+  font-size: 14px;
+  color: rgba(75, 75, 75, 0.7);
+}
+
+.flomo-usage-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.flomo-usage-progress-bar {
+  flex: 1;
+  height: 8px;
+  background-color: rgba(75, 75, 75, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.flomo-usage-progress-fill {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  border-radius: 4px;
+}
+
+.flomo-usage-percentage {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(75, 75, 75, 1);
+  min-width: 40px;
+  text-align: right;
+}
+
+.flomo-refresh-stats-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  color: rgba(75, 75, 75, 0.6);
+  transition: all 0.2s ease;
+}
+
+.flomo-refresh-stats-button:hover {
+  background-color: rgba(75, 75, 75, 0.1);
+  color: rgba(75, 75, 75, 1);
+}
+
+.flomo-refresh-stats-button .icon-refresh {
+  font-size: 16px;
+}
+
 /* 简化样式，移除复杂的主题支持 */
 
 /* 使用标准的设置选项样式 */

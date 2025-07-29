@@ -9,7 +9,6 @@ export const sideMenu = [
     icon: "heart",
     mode: "favorite",
   },
-
   {
     name: "Notes",
     icon: "idea-line",
@@ -19,6 +18,11 @@ export const sideMenu = [
     name: "Highlights",
     icon: "highlight-line",
     mode: "digest",
+  },
+  {
+    name: "Knowledge Base",
+    icon: "collect",
+    mode: "knowledge",
   },
   {
     name: "Deleted Books",

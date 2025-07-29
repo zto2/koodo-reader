@@ -7,8 +7,6 @@ import toast from "react-hot-toast";
 import BookUtil from "../../../utils/file/bookUtil";
 import {
   exportDictionaryHistory,
-  exportHighlights,
-  exportNotes,
 } from "../../../utils/file/export";
 import DatabaseService from "../../../utils/storage/databaseService";
 import {
@@ -31,16 +29,34 @@ class ActionDialog extends React.Component<MoreActionProps, MoreActionState> {
       clearTimeout(this.hoverTimeout);
     }
   }
+
+
   render() {
     return (
       <div
-        className="action-dialog-container"
-        onMouseLeave={() => {
-          // Add delay before hiding to improve stability
+        className="action-dialog-container more-action-container"
+        onMouseLeave={(event) => {
+          // Check if moving back to parent menu
+          const relatedTarget = event.relatedTarget as HTMLElement;
+
+          // Check if relatedTarget is a valid DOM element before calling closest()
+          let isMovingToParent = false;
+          if (relatedTarget && typeof relatedTarget.closest === 'function') {
+            // Check if moving to the main action dialog (but not another more-action-container)
+            isMovingToParent = !!relatedTarget.closest('.action-dialog-container') &&
+              !relatedTarget.closest('.more-action-container');
+          }
+
+          if (isMovingToParent) {
+            // Don't hide if moving back to parent
+            return;
+          }
+
+          // Add delay for other cases - consistent with export dialog
           this.hoverTimeout = setTimeout(() => {
             this.props.handleMoreAction(false);
             this.props.handleActionDialog(false);
-          }, 200);
+          }, 300);
         }}
         onMouseEnter={(event) => {
           // Clear any existing timeout
@@ -58,7 +74,7 @@ class ActionDialog extends React.Component<MoreActionProps, MoreActionState> {
             ? {
                 position: "fixed",
                 left: this.props.left + (this.props.isExceed ? -195 : 195),
-                top: this.props.top + 70,
+                top: this.props.top + 130, // 使用原始项目的简单定位方式
               }
             : { display: "none" }
         }
@@ -87,52 +103,7 @@ class ActionDialog extends React.Component<MoreActionProps, MoreActionState> {
               <Trans>Export books</Trans>
             </p>
           </div>
-          <div
-            className="action-dialog-edit"
-            style={{ paddingLeft: "0px" }}
-            onClick={async () => {
-              let books = await DatabaseService.getAllRecords("books");
-              let notes = (
-                await DatabaseService.getRecordsByBookKey(
-                  this.props.currentBook.key,
-                  "notes"
-                )
-              ).filter((note) => note.notes !== "");
-              if (notes.length > 0) {
-                exportNotes(notes, books);
-                toast.success(this.props.t("Export successful"));
-              } else {
-                toast(this.props.t("Nothing to export"));
-              }
-            }}
-          >
-            <p className="action-name">
-              <Trans>Export notes</Trans>
-            </p>
-          </div>
-          <div
-            className="action-dialog-edit"
-            style={{ paddingLeft: "0px" }}
-            onClick={async () => {
-              let books = await DatabaseService.getAllRecords("books");
-              let highlights = (
-                await DatabaseService.getRecordsByBookKey(
-                  this.props.currentBook.key,
-                  "notes"
-                )
-              ).filter((note) => note.notes === "");
-              if (highlights.length > 0) {
-                exportHighlights(highlights, books);
-                toast.success(this.props.t("Export successful"));
-              } else {
-                toast(this.props.t("Nothing to export"));
-              }
-            }}
-          >
-            <p className="action-name">
-              <Trans>Export highlights</Trans>
-            </p>
-          </div>
+          {/* 保留导出词典历史功能 */}
           <div
             className="action-dialog-edit"
             style={{ paddingLeft: "0px" }}
@@ -154,6 +125,8 @@ class ActionDialog extends React.Component<MoreActionProps, MoreActionState> {
               <Trans>Export dictionary history</Trans>
             </p>
           </div>
+
+          {/* 笔记和高亮导出功能已移至统一导出，这里不再重复 */}
           <div
             className="action-dialog-edit"
             style={{ paddingLeft: "0px" }}

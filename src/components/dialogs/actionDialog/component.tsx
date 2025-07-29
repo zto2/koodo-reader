@@ -5,6 +5,7 @@ import { ActionDialogProps, ActionDialogState } from "./interface";
 import toast from "react-hot-toast";
 import MoreAction from "../moreAction";
 import FlomoExportAction from "../flomoExportAction";
+import UnifiedExportDialog from "../unifiedExportDialog";
 import { ConfigService } from "../../../assets/lib/kookit-extra-browser.min";
 import FlomoBulkExportService from "../../../utils/service/flomoBulkExportService";
 declare var window: any;
@@ -15,10 +16,11 @@ class ActionDialog extends React.Component<
   constructor(props: ActionDialogProps) {
     super(props);
     this.state = {
-      isShowExport: false,
+      isShowExport: false, // 恢复更多操作菜单状态
       isShowDetail: false,
       isExceed: false,
       isShowFlomoExport: false,
+      isShowUnifiedExport: false,
     };
     this.flomoHoverTimeout = null;
     this.exportHoverTimeout = null;
@@ -92,6 +94,10 @@ class ActionDialog extends React.Component<
     this.setState({ isShowFlomoExport });
   };
 
+  handleUnifiedExportAction = (isShowUnifiedExport: boolean) => {
+    this.setState({ isShowUnifiedExport });
+  };
+
   handleFlomoExportNotes = async () => {
     const flomoBulkService = FlomoBulkExportService.getInstance();
     if (!flomoBulkService.canBulkExport()) {
@@ -127,7 +133,10 @@ class ActionDialog extends React.Component<
       top: this.props.top,
       isShowExport: this.state.isShowExport,
       isExceed: this.state.isExceed,
+      currentBook: this.props.currentBook,
       handleMoreAction: this.handleMoreAction,
+      handleActionDialog: this.props.handleActionDialog,
+      t: this.props.t,
     };
 
     const flomoExportActionProps = {
@@ -138,6 +147,17 @@ class ActionDialog extends React.Component<
       isExceed: this.state.isExceed,
       handleFlomoExportAction: this.handleFlomoExportAction,
       handleActionDialog: this.props.handleActionDialog,
+    };
+
+    const unifiedExportDialogProps = {
+      currentBook: this.props.currentBook,
+      left: this.props.left,
+      top: this.props.top,
+      isShow: this.state.isShowUnifiedExport,
+      isExceed: this.state.isExceed,
+      handleUnifiedExportDialog: this.handleUnifiedExportAction,
+      handleActionDialog: this.props.handleActionDialog,
+      t: this.props.t,
     };
     if (this.props.mode === "trash") {
       return (
@@ -286,10 +306,24 @@ class ActionDialog extends React.Component<
                   }
                 }}
                 onMouseLeave={(event) => {
-                  // Add delay before hiding to improve stability
+                  // Only add delay if not moving to child menu
+                  const relatedTarget = event.relatedTarget as HTMLElement;
+
+                  // Check if relatedTarget is a valid DOM element before calling closest()
+                  let isMovingToChild = false;
+                  if (relatedTarget && typeof relatedTarget.closest === 'function') {
+                    isMovingToChild = !!relatedTarget.closest('.flomo-export-action-container');
+                  }
+
+                  if (isMovingToChild) {
+                    // Don't hide immediately if moving to child menu
+                    return;
+                  }
+
+                  // Add short delay for other cases
                   this.flomoHoverTimeout = setTimeout(() => {
                     this.setState({ isShowFlomoExport: false });
-                  }, 150);
+                  }, 100);
                   event.stopPropagation();
                 }}
                 style={{ display: "flex", justifyContent: "space-between" }}
@@ -313,16 +347,22 @@ class ActionDialog extends React.Component<
                 ></span>
               </div>
             )}
+
+            {/* 统一导出按钮 */}
             <div
               className="action-dialog-edit"
               onMouseEnter={(event) => {
-                // Clear any existing timeout
+                // Clear any existing timeout - this is crucial for stability
                 if (this.exportHoverTimeout) {
                   clearTimeout(this.exportHoverTimeout);
                   this.exportHoverTimeout = null;
                 }
 
-                this.setState({ isShowExport: true });
+                // 关闭更多操作菜单，避免重叠
+                this.setState({
+                  isShowUnifiedExport: true,
+                  isShowExport: false
+                });
                 const e = event || window.event;
                 let x = e.clientX;
                 if (x > document.body.clientWidth - 300) {
@@ -332,10 +372,88 @@ class ActionDialog extends React.Component<
                 }
               }}
               onMouseLeave={(event) => {
-                // Add delay before hiding to improve stability
+                // 检查是否移动到子菜单
+                const relatedTarget = event.relatedTarget as HTMLElement;
+                let isMovingToChild = false;
+                if (relatedTarget && typeof relatedTarget.closest === 'function') {
+                  isMovingToChild = !!relatedTarget.closest('.unified-export-dialog-container');
+                }
+
+                if (isMovingToChild) {
+                  // 如果移动到子菜单，不关闭
+                  return;
+                }
+
+                // 添加延迟关闭 - 增加延迟时间给用户更多时间移动鼠标
+                this.exportHoverTimeout = setTimeout(() => {
+                  this.setState({ isShowUnifiedExport: false });
+                }, 300); // 增加到300ms，与"更多操作"保持一致
+                event.stopPropagation();
+              }}
+              style={{ display: "flex", justifyContent: "space-between" }}
+            >
+              <p className="action-name" style={{ marginLeft: "0px" }}>
+                <span
+                  className="icon-export view-icon"
+                  style={{
+                    display: "inline-block",
+                    marginRight: "12px",
+                    marginLeft: "3px",
+                    fontSize: "16px",
+                    color: "#2196f3"
+                  }}
+                ></span>
+                <Trans>Export</Trans>
+              </p>
+              <span
+                className="icon-dropdown icon-export-all"
+                style={{ left: "95px" }}
+              ></span>
+            </div>
+
+            {/* 恢复更多操作菜单，但只保留非导出功能 */}
+            <div
+              className="action-dialog-edit"
+              onMouseEnter={(event) => {
+                // Clear any existing timeout
+                if (this.exportHoverTimeout) {
+                  clearTimeout(this.exportHoverTimeout);
+                  this.exportHoverTimeout = null;
+                }
+
+                // 关闭统一导出对话框，避免重叠
+                this.setState({
+                  isShowExport: true,
+                  isShowUnifiedExport: false
+                });
+                const e = event || window.event;
+                let x = e.clientX;
+                if (x > document.body.clientWidth - 300) {
+                  this.setState({ isExceed: true });
+                } else {
+                  this.setState({ isExceed: false });
+                }
+              }}
+              onMouseLeave={(event) => {
+                // Only add delay if not moving to child menu
+                const relatedTarget = event.relatedTarget as HTMLElement;
+
+                // Check if relatedTarget is a valid DOM element before calling closest()
+                let isMovingToChild = false;
+                if (relatedTarget && typeof relatedTarget.closest === 'function') {
+                  // Check if moving to the MoreAction component
+                  isMovingToChild = !!relatedTarget.closest('.more-action-container');
+                }
+
+                if (isMovingToChild) {
+                  // Don't hide immediately if moving to child menu
+                  return;
+                }
+
+                // Add delay for other cases - consistent with export button
                 this.exportHoverTimeout = setTimeout(() => {
                   this.setState({ isShowExport: false });
-                }, 150);
+                }, 300);
                 event.stopPropagation();
               }}
               style={{ display: "flex", justifyContent: "space-between" }}
@@ -363,6 +481,7 @@ class ActionDialog extends React.Component<
         </div>
         <MoreAction {...moreActionProps} />
         <FlomoExportAction {...flomoExportActionProps} />
+        <UnifiedExportDialog {...unifiedExportDialogProps} />
       </>
     );
   }
