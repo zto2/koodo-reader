@@ -6,6 +6,7 @@ import NoteTag from "../../../components/noteTag";
 import NoteModel from "../../../models/Note";
 import Empty from "../../emptyPage";
 import TagSelector from "../../../components/tagSelector/component";
+import TagManager from "../../../components/tagManager/component";
 import { TagService } from "../../../utils/service/tagService";
 import { Trans } from "react-i18next";
 
@@ -18,6 +19,7 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
       tag: [],
       currentSelectedBook: "",
       selectedTags: [],
+      isTagManagerOpen: false,
     };
   }
   UNSAFE_componentWillMount() {
@@ -29,6 +31,19 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
 
   handleTagsChange = (selectedTags: string[]) => {
     this.setState({ selectedTags });
+  };
+
+  handleOpenTagManager = () => {
+    this.setState({ isTagManagerOpen: true });
+  };
+
+  handleCloseTagManager = () => {
+    this.setState({ isTagManagerOpen: false });
+  };
+
+  handleTagsUpdated = () => {
+    // 重新获取笔记数据以反映标签变化
+    this.props.handleFetchNotes();
   };
   handleFilter = (items: any, arr: number[]) => {
     let itemArr: any[] = [];
@@ -138,12 +153,27 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
         <div className="note-list-header">
           {/* 新的标签选择器 */}
           {this.props.tabMode === "knowledge" && (
-            <TagSelector
-              notes={this.props.notes}
-              selectedTags={this.state.selectedTags}
-              onTagsChange={this.handleTagsChange}
-              t={this.props.t}
-            />
+            <div className="knowledge-header-section">
+              <TagSelector
+                notes={this.props.notes}
+                selectedTags={this.state.selectedTags}
+                onTagsChange={this.handleTagsChange}
+                t={this.props.t}
+              />
+
+              <div className="knowledge-actions">
+                <button
+                  className="tag-manager-button"
+                  onClick={this.handleOpenTagManager}
+                  title={this.props.t("Manage Tags")}
+                >
+                  <span className="icon-setting-line"></span>
+                  <span className="button-text">
+                    <Trans>Manage Tags</Trans>
+                  </span>
+                </button>
+              </div>
+            </div>
           )}
 
           {/* 保留原有的标签组件用于向后兼容 */}
@@ -220,6 +250,15 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
         ) : (
           <CardList {...noteProps} />
         )}
+
+        {/* 标签管理器 */}
+        <TagManager
+          notes={this.props.notes}
+          isOpen={this.state.isTagManagerOpen}
+          onClose={this.handleCloseTagManager}
+          onTagsUpdated={this.handleTagsUpdated}
+          t={this.props.t}
+        />
       </div>
     );
   }

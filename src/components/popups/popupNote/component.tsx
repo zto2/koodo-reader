@@ -4,6 +4,7 @@ import Note from "../../../models/Note";
 import _ from "underscore";
 import { PopupNoteProps, PopupNoteState } from "./interface";
 import NoteTag from "../../noteTag";
+import TagInput from "../../tagInput/component";
 import NoteModel from "../../../models/Note";
 import { Trans } from "react-i18next";
 import toast from "react-hot-toast";
@@ -236,14 +237,18 @@ class PopupNote extends React.Component<PopupNoteProps, PopupNoteState> {
             <textarea className="editor-box" />
           </div>
           <div
-            className="note-tags"
-            style={{ position: "absolute", bottom: "0px", height: "40px" }}
+            className="note-tags-section"
+            style={{ marginTop: "15px", marginBottom: "15px" }}
           >
-            <NoteTag
-              {...{
-                handleTag: this.handleTag,
-                tag: this.props.noteKey && note ? note.tag : [],
-              }}
+            <div className="note-tags-label">
+              <Trans>Tags</Trans>:
+            </div>
+            <TagInput
+              notes={this.props.notes || []}
+              selectedTags={this.state.tag}
+              onTagsChange={this.handleTag}
+              placeholder={this.props.t("Add tags (e.g., #reading/tech/frontend)...")}
+              t={this.props.t}
             />
           </div>
           <ColorOption {...PopupProps} />

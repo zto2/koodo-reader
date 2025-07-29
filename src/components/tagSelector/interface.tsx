@@ -14,4 +14,9 @@ export interface TagSelectorState {
   isExpanded: boolean;
   tagHierarchy: TagHierarchy;
   filteredTags: TagInfo[];
+  suggestions: TagInfo[];
+  showSuggestions: boolean;
+  expandedTags: Set<string>;
+  isCreatingTag: boolean;
+  newTagInput: string;
 }

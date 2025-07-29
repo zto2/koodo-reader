@@ -2,6 +2,8 @@
   width: calc(100% - 40px);
   height: calc(100% - 140px);
   padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 .note-original-text {
   border-left: solid 3px #109870;
@@ -19,7 +21,8 @@
 }
 .editor-box-parent {
   width: 100%;
-  height: calc(100% - 15px);
+  flex: 1;
+  margin-bottom: 15px;
 }
 .editor-box {
   border: none;
@@ -85,4 +88,17 @@
   width: 320px;
   overflow-x: scroll;
   overflow-y: hidden;
+}
+
+/* 新的标签部分样式 */
+.note-tags-section {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.note-tags-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(75, 75, 75, 0.8);
+  margin-bottom: 8px;
 }

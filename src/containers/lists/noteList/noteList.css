@@ -5,15 +5,108 @@
   width: calc(100% - 200px);
   height: calc(100% - 75px);
   overflow: hidden;
+  background-color: rgba(250, 250, 250, 1);
 }
+
 .note-list-filter-label {
   font-size: 15px;
   font-weight: 500;
   margin-right: 10px;
+  color: rgba(75, 75, 75, 0.8);
 }
+
 .note-list-header {
   display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+  background: white;
+  border-bottom: 1px solid rgba(75, 75, 75, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 知识库头部区域 */
+.knowledge-header-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.knowledge-actions {
+  display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.tag-manager-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.tag-manager-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.tag-manager-button .icon-setting-line {
+  font-size: 16px;
+}
+
+.button-text {
+  font-weight: 500;
+}
+
+/* 改进的过滤器样式 */
+.lang-setting-dropdown {
+  padding: 8px 12px;
+  border: 1px solid rgba(75, 75, 75, 0.2);
+  border-radius: 6px;
+  background-color: white;
+  font-size: 14px;
+  color: rgba(75, 75, 75, 1);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.lang-setting-dropdown:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .note-list-container-parent {
+    left: 70px;
+    width: calc(100vw - 70px);
+  }
+
+  .note-list-header {
+    padding: 15px;
+  }
+
+  .knowledge-actions {
+    justify-content: center;
+  }
+
+  .tag-manager-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .button-text {
+    display: none;
+  }
 }

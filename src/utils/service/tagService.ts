@@ -6,6 +6,10 @@ export interface TagInfo {
   children?: TagInfo[];
   parent?: string;
   level: number;
+  fullPath: string; // 完整路径，如 "读书笔记/技术/前端"
+  displayName: string; // 显示名称（最后一级）
+  isExpanded?: boolean; // 是否展开子标签
+  color?: string; // 标签颜色
 }
 
 export interface TagHierarchy {
@@ -90,13 +94,17 @@ export class TagService {
       const parts = tagName.split('/');
       const level = parts.length - 1;
       const parent = level > 0 ? parts.slice(0, -1).join('/') : undefined;
-      
+      const displayName = parts[parts.length - 1];
+
       hierarchy[tagName] = {
         name: tagName,
+        fullPath: tagName,
+        displayName,
         count,
         level,
         parent,
-        children: []
+        children: [],
+        isExpanded: false
       };
     }
     
@@ -252,5 +260,129 @@ export class TagService {
   public cleanTextFromTags(text: string): string {
     if (!text) return "";
     return text.replace(/#([^\s#]+)/g, '').trim();
+  }
+
+  /**
+   * 获取标签建议（自动补全）
+   */
+  public getTagSuggestions(hierarchy: TagHierarchy, input: string, limit: number = 10): TagInfo[] {
+    if (!input.trim()) return this.getRootTags(hierarchy).slice(0, limit);
+
+    const lowerInput = input.toLowerCase();
+    const suggestions = Object.values(hierarchy)
+      .filter(tag => {
+        const displayName = tag.displayName.toLowerCase();
+        const fullPath = tag.fullPath.toLowerCase();
+        return displayName.includes(lowerInput) || fullPath.includes(lowerInput);
+      })
+      .sort((a, b) => {
+        // 优先显示显示名称匹配的
+        const aDisplayMatch = a.displayName.toLowerCase().startsWith(lowerInput);
+        const bDisplayMatch = b.displayName.toLowerCase().startsWith(lowerInput);
+
+        if (aDisplayMatch && !bDisplayMatch) return -1;
+        if (!aDisplayMatch && bDisplayMatch) return 1;
+
+        // 然后按使用次数排序
+        return b.count - a.count;
+      })
+      .slice(0, limit);
+
+    return suggestions;
+  }
+
+  /**
+   * 创建新标签
+   */
+  public createTag(tagPath: string): TagInfo {
+    const parts = tagPath.split('/');
+    const level = parts.length - 1;
+    const parent = level > 0 ? parts.slice(0, -1).join('/') : undefined;
+    const displayName = parts[parts.length - 1];
+
+    return {
+      name: tagPath,
+      fullPath: tagPath,
+      displayName,
+      count: 0,
+      level,
+      parent,
+      children: [],
+      isExpanded: false
+    };
+  }
+
+  /**
+   * 验证标签路径是否有效
+   */
+  public isValidTagPath(tagPath: string): boolean {
+    if (!tagPath || tagPath.trim().length === 0) return false;
+
+    const parts = tagPath.split('/');
+    return parts.every(part => {
+      const trimmed = part.trim();
+      return trimmed.length > 0 &&
+             !/[<>:"/\\|?*#]/.test(trimmed) &&
+             trimmed.length <= 50; // 限制单个标签长度
+    }) && parts.length <= 5; // 限制层级深度
+  }
+
+  /**
+   * 格式化标签路径
+   */
+  public formatTagPath(tagPath: string): string {
+    return tagPath
+      .split('/')
+      .map(part => part.trim())
+      .filter(part => part.length > 0)
+      .join('/');
+  }
+
+  /**
+   * 获取标签的所有祖先标签
+   */
+  public getAncestorTags(tagPath: string): string[] {
+    const parts = tagPath.split('/');
+    const ancestors: string[] = [];
+
+    for (let i = 0; i < parts.length - 1; i++) {
+      ancestors.push(parts.slice(0, i + 1).join('/'));
+    }
+
+    return ancestors;
+  }
+
+  /**
+   * 检查标签是否为另一个标签的子标签
+   */
+  public isChildTag(childTag: string, parentTag: string): boolean {
+    return childTag.startsWith(parentTag + '/');
+  }
+
+  /**
+   * 获取标签统计信息
+   */
+  public getTagStatistics(notes: NoteModel[]): {
+    totalTags: number;
+    totalUniqueNotes: number;
+    averageTagsPerNote: number;
+    mostUsedTags: TagInfo[];
+  } {
+    const hierarchy = this.buildTagHierarchy(notes);
+    const allTags = Object.values(hierarchy);
+    const notesWithTags = notes.filter(note => this.extractTagsFromNote(note).length > 0);
+
+    const totalTagUsages = notes.reduce((sum, note) => {
+      return sum + this.extractTagsFromNote(note).length;
+    }, 0);
+
+    return {
+      totalTags: allTags.length,
+      totalUniqueNotes: notesWithTags.length,
+      averageTagsPerNote: notesWithTags.length > 0 ? totalTagUsages / notesWithTags.length : 0,
+      mostUsedTags: allTags
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10)
+    };
   }
 }
