@@ -5,7 +5,6 @@ import { FlomoExportActionProps, FlomoExportActionState } from "./interface";
 import FlomoBulkExportService from "../../../utils/service/flomoBulkExportService";
 import toast from "react-hot-toast";
 import { AnkiExportService } from "../../../utils/service/ankiExportService";
-import { PDFExportService } from "../../../utils/service/pdfExportService";
 import DatabaseService from "../../../utils/storage/databaseService";
 
 class FlomoExportAction extends React.Component<FlomoExportActionProps, FlomoExportActionState> {
@@ -112,52 +111,7 @@ class FlomoExportAction extends React.Component<FlomoExportActionProps, FlomoExp
     }
   };
 
-  // PDF导出方法
-  handleExportNotesToPDF = async () => {
-    try {
-      const notes = await DatabaseService.getRecordsByBookKey(
-        this.props.currentBook.key,
-        "notes"
-      );
-      const actualNotes = notes.filter((note) => note.notes && note.notes.trim() !== "");
 
-      if (actualNotes.length === 0) {
-        toast.error("该书籍没有笔记可以导出");
-        return;
-      }
-
-      const pdfService = PDFExportService.getInstance();
-      await pdfService.exportNotesToPDF(this.props.currentBook, actualNotes);
-      toast.success("笔记已成功导出为PDF格式");
-      this.props.handleActionDialog(false);
-    } catch (error) {
-      console.error("PDF导出失败:", error);
-      toast.error("PDF导出失败");
-    }
-  };
-
-  handleExportHighlightsToPDF = async () => {
-    try {
-      const notes = await DatabaseService.getRecordsByBookKey(
-        this.props.currentBook.key,
-        "notes"
-      );
-      const highlights = notes.filter((note) => !note.notes || note.notes.trim() === "");
-
-      if (highlights.length === 0) {
-        toast.error("该书籍没有高亮可以导出");
-        return;
-      }
-
-      const pdfService = PDFExportService.getInstance();
-      await pdfService.exportHighlightsToPDF(this.props.currentBook, highlights);
-      toast.success("高亮已成功导出为PDF格式");
-      this.props.handleActionDialog(false);
-    } catch (error) {
-      console.error("PDF导出失败:", error);
-      toast.error("PDF导出失败");
-    }
-  };
 
   render() {
     const { stats } = this.state;
@@ -311,44 +265,7 @@ class FlomoExportAction extends React.Component<FlomoExportActionProps, FlomoExp
             </div>
           </div>
 
-          {/* PDF导出选项 */}
-          <div
-            className="flomo-export-action-item"
-            onClick={this.handleExportNotesToPDF}
-            style={{
-              opacity: stats.notesCount > 0 ? 1 : 0.5,
-              cursor: stats.notesCount > 0 ? "pointer" : "not-allowed"
-            }}
-          >
-            <span className="icon-note flomo-export-icon"></span>
-            <div className="flomo-export-action-content">
-              <p className="flomo-export-action-name">
-                <Trans>Export notes to PDF</Trans>
-              </p>
-              <p className="flomo-export-action-count">
-                {stats.notesCount} 条笔记
-              </p>
-            </div>
-          </div>
 
-          <div
-            className="flomo-export-action-item"
-            onClick={this.handleExportHighlightsToPDF}
-            style={{
-              opacity: stats.highlightsCount > 0 ? 1 : 0.5,
-              cursor: stats.highlightsCount > 0 ? "pointer" : "not-allowed"
-            }}
-          >
-            <span className="icon-highlight flomo-export-icon"></span>
-            <div className="flomo-export-action-content">
-              <p className="flomo-export-action-name">
-                <Trans>Export highlights to PDF</Trans>
-              </p>
-              <p className="flomo-export-action-count">
-                {stats.highlightsCount} 条高亮
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     );

@@ -5,7 +5,6 @@ import { UnifiedExportDialogProps, UnifiedExportDialogState, ExportOption, Forma
 import toast from "react-hot-toast";
 import DatabaseService from "../../../utils/storage/databaseService";
 import { AnkiExportService } from "../../../utils/service/ankiExportService";
-import { PDFExportService } from "../../../utils/service/pdfExportService";
 import { FlomoBulkExportService } from "../../../utils/service/flomoBulkExportService";
 import { exportNotes, exportHighlights } from "../../../utils/file/export";
 import { ConfigService } from "../../../assets/lib/kookit-extra-browser.min";
@@ -22,7 +21,7 @@ class UnifiedExportDialog extends React.Component<UnifiedExportDialogProps, Unif
         totalCount: 0,
       },
       selectedContentType: 'notes',
-      selectedFormat: 'pdf',
+      selectedFormat: 'text',
       isLoading: false,
     };
   }
@@ -106,10 +105,10 @@ class UnifiedExportDialog extends React.Component<UnifiedExportDialogProps, Unif
   getFormatOptions = (): FormatOption[] => {
     const options: FormatOption[] = [
       {
-        id: 'pdf',
-        name: 'PDF',
-        icon: 'icon-file-pdf',
-        description: this.props.t('Formatted PDF document'),
+        id: 'text',
+        name: 'Text',
+        icon: 'icon-file-text',
+        description: this.props.t('Plain text format (Chinese friendly)'),
         supportedTypes: ['notes', 'highlights', 'all'],
       },
       {
@@ -146,7 +145,7 @@ class UnifiedExportDialog extends React.Component<UnifiedExportDialogProps, Unif
     this.setState({ selectedContentType: contentType });
   };
 
-  handleFormatChange = (format: 'flomo' | 'anki' | 'pdf' | 'csv') => {
+  handleFormatChange = (format: 'flomo' | 'anki' | 'csv' | 'text') => {
     this.setState({ selectedFormat: format });
   };
 
@@ -174,8 +173,8 @@ class UnifiedExportDialog extends React.Component<UnifiedExportDialogProps, Unif
       }
 
       switch (selectedFormat) {
-        case 'pdf':
-          await this.exportToPDF(targetNotes);
+        case 'text':
+          await this.exportToText(targetNotes);
           break;
         case 'anki':
           await this.exportToAnki(targetNotes);
@@ -201,17 +200,44 @@ class UnifiedExportDialog extends React.Component<UnifiedExportDialogProps, Unif
     }
   };
 
-  exportToPDF = async (notes: any[]) => {
-    const pdfService = PDFExportService.getInstance();
-    const { selectedContentType } = this.state;
-    
-    if (selectedContentType === 'notes') {
-      await pdfService.exportNotesToPDF(this.props.currentBook, notes);
-    } else if (selectedContentType === 'highlights') {
-      await pdfService.exportHighlightsToPDF(this.props.currentBook, notes);
-    } else {
-      await pdfService.exportAllToPDF(this.props.currentBook, notes);
+  exportToText = async (notes: any[]) => {
+    let content = `${this.props.currentBook.name}\n`;
+    if (this.props.currentBook.author) {
+      content += `作者: ${this.props.currentBook.author}\n`;
     }
+    content += `导出时间: ${new Date().toLocaleString()}\n`;
+    content += `笔记数量: ${notes.length}条\n\n`;
+    content += '='.repeat(50) + '\n\n';
+
+    notes.forEach((note: any, index: number) => {
+      content += `${index + 1}. `;
+
+      // 高亮文本
+      if (note.text) {
+        content += `"${note.text}"\n`;
+      }
+
+      // 笔记内容
+      if (note.notes) {
+        content += `笔记: ${note.notes}\n`;
+      }
+
+      // 元数据
+      if (note.chapter) {
+        content += `章节: ${note.chapter}\n`;
+      }
+      if (note.percentage) {
+        content += `位置: ${Math.floor(parseFloat(note.percentage) * 100)}%\n`;
+      }
+
+      content += '\n' + '-'.repeat(30) + '\n\n';
+    });
+
+    // 保存为文本文件
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const fileName = `${this.props.currentBook.name}-笔记导出-${notes.length}条.txt`;
+    const { saveAs } = await import('file-saver');
+    saveAs(blob, fileName);
   };
 
   exportToAnki = async (notes: any[]) => {

@@ -18,7 +18,7 @@ export interface UnifiedExportDialogState {
     totalCount: number;
   };
   selectedContentType: 'notes' | 'highlights' | 'all';
-  selectedFormat: 'flomo' | 'anki' | 'pdf' | 'csv';
+  selectedFormat: 'flomo' | 'anki' | 'csv' | 'text';
   isLoading: boolean;
 }
 

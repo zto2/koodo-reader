@@ -24,12 +24,12 @@ export class AnkiExportService {
   private extractTags(text: string): string[] {
     const tagRegex = /#([^\s#]+)/g;
     const tags: string[] = [];
-    let match;
-    
+    let match: RegExpExecArray | null;
+
     while ((match = tagRegex.exec(text)) !== null) {
       tags.push(match[1]);
     }
-    
+
     return tags;
   }
 
@@ -110,7 +110,7 @@ export class AnkiExportService {
     const ankiText = this.generateAnkiText(cards);
     
     const blob = new Blob([ankiText], { type: "text/plain;charset=utf-8" });
-    const fileName = `${book.name.replace(/[^a-zA-Z0-9]/g, '_')}_anki_export.txt`;
+    const fileName = `${book.name}-笔记导出-${notes.length}条.txt`;
     
     saveAs(blob, fileName);
   }
@@ -135,7 +135,7 @@ export class AnkiExportService {
     const ankiText = this.generateAnkiText(allCards);
     
     const blob = new Blob([ankiText], { type: "text/plain;charset=utf-8" });
-    const fileName = `koodo_reader_anki_export_${new Date().toISOString().split('T')[0]}.txt`;
+    const fileName = `多本书籍-笔记导出-${allCards.length}条.txt`;
     
     saveAs(blob, fileName);
   }
