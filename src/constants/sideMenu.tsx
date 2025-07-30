@@ -20,11 +20,6 @@ export const sideMenu = [
     mode: "digest",
   },
   {
-    name: "Knowledge Base",
-    icon: "collect",
-    mode: "knowledge",
-  },
-  {
     name: "Deleted Books",
     icon: "trash-line",
     mode: "trash",

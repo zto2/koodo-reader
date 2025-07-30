@@ -1,46 +1,69 @@
 .color-option-container {
-  width: 90%;
-  height: 40px;
-  margin-left: 5%;
+  width: 100%;
+  height: 50px;
+  margin: 0;
   position: relative;
-  top: 15px;
+  top: 0;
   display: flex;
   justify-content: space-around;
+  align-items: center;
+  padding: 5px 0;
 }
 .color-option {
-  width: 25px;
-  height: 25px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   opacity: 1;
   box-sizing: border-box;
   position: relative;
-  bottom: 5px;
+  bottom: 0;
   cursor: pointer;
   animation: slide-left 0.2s ease-in-out 0s 1;
+  transition: transform 0.2s ease;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
 }
 .popup-color-more {
-  display: inline-block;
-  width: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   position: relative;
-  right: 3px;
-  top: 0px;
+  right: 0;
+  top: 0;
   opacity: 0.7;
   cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.popup-color-more:hover {
+  opacity: 1;
+  background-color: rgba(75, 75, 75, 0.1);
+  transform: scale(1.1);
 }
 .line-option {
-  width: 25px;
-  margin-right: 5px;
-  height: 25px;
+  width: 28px;
+  margin-right: 0;
+  height: 28px;
   border-radius: 50%;
   opacity: 1;
   box-sizing: border-box;
   position: relative;
-  bottom: 5px;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   animation: slide-right 0.2s ease-in-out 0s 1;
+  transition: transform 0.2s ease;
+}
+
+.line-option:hover {
+  transform: scale(1.1);
 }
 @keyframes slide-right {
   0% {

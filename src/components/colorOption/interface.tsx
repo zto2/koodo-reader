@@ -5,6 +5,7 @@ export interface ColorProps {
   currentBook: BookModel;
   handleColor: (color: number) => void;
   handleDigest: () => void;
+  inNotePopup?: boolean;
 }
 export interface ColorStates {
   isLine: boolean;

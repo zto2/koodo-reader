@@ -5,7 +5,6 @@ import {
   ConfigService,
   SearchUtil,
 } from "../../assets/lib/kookit-extra-browser.min";
-import { EnhancedSearchUtil } from "../../utils/search/enhancedSearchUtil";
 
 class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
   constructor(props: SearchBoxProps) {
@@ -29,36 +28,15 @@ class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
     if (this.props.mode === "nav") {
       this.props.handleNavSearchState("searching");
     }
-    let results;
-
-    if (this.props.tabMode === "knowledge") {
-      // 知识库模式使用增强搜索
-      const searchResults = EnhancedSearchUtil.search(value, this.props.notes, this.props.books, {
-        includeNotes: true,
-        includeTags: true,
-        includeBooks: true,
-        maxResults: 50
-      });
-
-      // 转换为原有格式的索引数组
-      results = searchResults
-        .filter(result => result.type === 'note')
-        .map(result => {
-          const noteIndex = this.props.notes.findIndex(note => note.key === (result.item as any).key);
-          return noteIndex;
-        })
-        .filter(index => index !== -1);
-    } else {
-      results = this.props.tabMode === "note"
-        ? SearchUtil.mouseNoteSearch(
-            this.props.notes.filter((item) => item.notes !== "")
-          )
-        : this.props.tabMode === "digest"
-        ? SearchUtil.mouseNoteSearch(
-            this.props.notes.filter((item) => item.notes === "")
-          )
-        : SearchUtil.mouseSearch(this.props.books);
-    }
+    let results = this.props.tabMode === "note"
+      ? SearchUtil.mouseNoteSearch(
+          this.props.notes.filter((item) => item.notes !== "")
+        )
+      : this.props.tabMode === "digest"
+      ? SearchUtil.mouseNoteSearch(
+          this.props.notes.filter((item) => item.notes === "")
+        )
+      : SearchUtil.mouseSearch(this.props.books);
     if (results) {
       this.props.handleSearchResults(results);
       this.props.handleSearch(true);
@@ -73,38 +51,17 @@ class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
       value && this.search(value);
     }
     this.setState({ isFocused: false });
-    let results;
-
-    if (this.props.tabMode === "knowledge") {
-      // 知识库模式使用增强搜索
-      const searchResults = EnhancedSearchUtil.search(value, this.props.notes, this.props.books, {
-        includeNotes: true,
-        includeTags: true,
-        includeBooks: true,
-        maxResults: 50
-      });
-
-      // 转换为原有格式的索引数组
-      results = searchResults
-        .filter(result => result.type === 'note')
-        .map(result => {
-          const noteIndex = this.props.notes.findIndex(note => note.key === (result.item as any).key);
-          return noteIndex;
-        })
-        .filter(index => index !== -1);
-    } else {
-      results = this.props.tabMode === "note"
-        ? SearchUtil.keyNoteSearch(
-            event,
-            this.props.notes.filter((item) => item.notes !== "")
-          )
-        : this.props.tabMode === "digest"
-        ? SearchUtil.keyNoteSearch(
-            event,
-            this.props.notes.filter((item) => item.notes === "")
-          )
-        : SearchUtil.keySearch(event, this.props.books);
-    }
+    let results = this.props.tabMode === "note"
+      ? SearchUtil.keyNoteSearch(
+          event,
+          this.props.notes.filter((item) => item.notes !== "")
+        )
+      : this.props.tabMode === "digest"
+      ? SearchUtil.keyNoteSearch(
+          event,
+          this.props.notes.filter((item) => item.notes === "")
+        )
+      : SearchUtil.keySearch(event, this.props.books);
     if (results) {
       this.props.handleSearchResults(results);
       this.props.handleSearch(true);
@@ -152,8 +109,6 @@ class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
           placeholder={
             this.props.isNavSearch || this.props.mode === "nav"
               ? this.props.t("Search in the Book")
-              : this.props.tabMode === "knowledge"
-              ? this.props.t("Search notes, tags, and books...")
               : this.props.tabMode === "note"
               ? this.props.t("Search my notes")
               : this.props.tabMode === "digest"

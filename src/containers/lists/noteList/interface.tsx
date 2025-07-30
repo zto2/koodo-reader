@@ -14,6 +14,4 @@ export interface NoteListProps {
 export interface NoteListState {
   tag: string[];
   currentSelectedBook: string;
-  selectedTags: string[];
-  isTagManagerOpen: boolean;
 }

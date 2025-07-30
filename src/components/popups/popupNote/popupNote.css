@@ -1,9 +1,12 @@
 .note-editor {
-  width: calc(100% - 40px);
-  height: calc(100% - 140px);
-  padding: 20px;
+  width: calc(100% - 30px);
+  height: calc(100% - 30px);
+  padding: 15px;
   display: flex;
   flex-direction: column;
+  gap: 0px;
+  position: relative;
+  overflow-y: auto;
 }
 .note-original-text {
   border-left: solid 3px #109870;
@@ -18,11 +21,12 @@
   -webkit-line-clamp: 3;
   overflow: hidden;
   font-size: 15px;
+  overflow-y: auto;
 }
 .editor-box-parent {
   width: 100%;
   flex: 1;
-  margin-bottom: 15px;
+  margin-bottom: 0;
 }
 .editor-box {
   border: none;
@@ -30,14 +34,16 @@
   resize: none;
   font-size: 15px;
   width: calc(100% - 20px);
-  min-height: 120px;
+  height: 100%;
+  min-height: 80px;
   line-height: 18px;
-  overflow-y: scroll;
+  overflow-y: auto;
   background-color: rgba(16, 152, 112, 0.05);
   border-radius: 7px;
   padding: 10px;
 }
 
+/* 没有 ::placeholder，就无法单独控制这段灰色提示文字的样式 */
 .editor-box::placeholder {
   font-size: 15px;
   line-height: 15px;
@@ -46,6 +52,7 @@
   top: 6px;
   font-weight: 500;
 }
+/* 确保在 Microsoft Edge 浏览器中也能显示灰色提示文字 */
 .editor-box::-ms-input-placeholder {
   font-size: 15px;
   line-height: 15px;
@@ -54,6 +61,7 @@
   top: 6px;
   font-weight: 500;
 }
+/* 确保在 Firefox 浏览器中也能显示灰色提示文字 */
 .editor-box::-moz-placeholder {
   font-size: 15px;
   line-height: 15px;
@@ -62,13 +70,25 @@
   top: 6px;
   font-weight: 500;
 }
-.note-button-container {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  max-width: 100%;
+
+.note-color-section {
   display: flex;
-  justify-content: space-between;
+  /* --- 通过修改这一行来调整水平位置 --- */
+  justify-content: flex-end;
+  margin-bottom: auto; 
+  /* margin-top: 5px; */
+  /* border-top: 1px solid rgba(75, 75, 75, 0.1);    <-- 上边框线 */
+  /* border-bottom: 1px solid rgba(75, 75, 75, 0.1); <-- 下边框线 */
+}
+
+.note-button-container {
+  display: flex;
+  /* justify-content 定义在主轴（默认是水平方向）上的对齐方式，end 表示 */
+  justify-content: flex-end; 
+   /* gap 定义在主轴（默认是水平方向）上每两个子元素之间的间隔  */
+  gap: 15px;
+  margin-top: auto;
+  /* padding-top: 15px; */
   cursor: pointer;
 }
 .confirm-button {
@@ -92,8 +112,8 @@
 
 /* 新的标签部分样式 */
 .note-tags-section {
-  margin-top: 15px;
-  margin-bottom: 15px;
+  margin: 0;
+  padding: 0;
 }
 
 .note-tags-label {
@@ -101,4 +121,5 @@
   font-weight: 500;
   color: rgba(75, 75, 75, 0.8);
   margin-bottom: 8px;
+  margin-top: 30px;
 }

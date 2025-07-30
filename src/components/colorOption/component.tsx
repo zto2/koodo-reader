@@ -69,14 +69,22 @@ class ColorOption extends React.Component<ColorProps, ColorStates> {
       <div
         className="color-option-container"
         style={
-          this.props.isEdit
+          // 只有在isEdit模式下，并且不是在NotePopup中时，才显示颜色选项
+          this.props.isEdit && !this.props.inNotePopup
             ? {
                 position: "absolute",
                 top: "calc(100% - 65px)",
                 width: "70%",
                 marginLeft: 0,
               }
-            : {}
+            : (
+              this.props.inNotePopup ? {
+                //顶部距离
+                // top: "calc(100% - 65px)",
+                width: "70%",
+              } 
+              :{}
+            )
         }
       >
         {this.props.isEdit ? (

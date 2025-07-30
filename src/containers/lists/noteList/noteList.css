@@ -17,65 +17,42 @@
 
 .note-list-header {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
   padding: 20px;
   background: white;
   border-bottom: 1px solid rgba(75, 75, 75, 0.1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* 知识库头部区域 */
-.knowledge-header-section {
+.note-list-header-main {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  flex: 1;
 }
 
-.knowledge-actions {
+.note-list-filter-container {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 10px;
+  flex-shrink: 0;
 }
 
-.tag-manager-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
-}
 
-.tag-manager-button:hover {
-  background-color: #0056b3;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-}
-
-.tag-manager-button .icon-setting-line {
-  font-size: 16px;
-}
-
-.button-text {
-  font-weight: 500;
-}
 
 /* 改进的过滤器样式 */
 .lang-setting-dropdown {
-  padding: 8px 12px;
+  min-width: 120px;
+  width: auto;
+  height: 30px;
+  padding: 4px 8px;
   border: 1px solid rgba(75, 75, 75, 0.2);
-  border-radius: 6px;
+  border-radius: 5px;
   background-color: white;
   font-size: 14px;
+  font-weight: 500;
   color: rgba(75, 75, 75, 1);
   cursor: pointer;
   transition: border-color 0.2s ease;
@@ -94,7 +71,19 @@
   }
 
   .note-list-header {
+    flex-direction: column;
+    align-items: stretch;
     padding: 15px;
+  }
+
+  .note-list-filter-container {
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
+
+  .lang-setting-dropdown {
+    min-width: 100px;
+    font-size: 13px;
   }
 
   .knowledge-actions {

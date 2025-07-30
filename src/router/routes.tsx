@@ -9,7 +9,6 @@ export const routes = [
   { path: "/manager/loading", component: LoadingPage },
   { path: "/manager/note", component: NoteList },
   { path: "/manager/digest", component: NoteList },
-  { path: "/manager/knowledge", component: NoteList },
   { path: "/manager/home", component: BookList },
   { path: "/manager/shelf", component: BookList },
   { path: "/manager/favorite", component: BookList },

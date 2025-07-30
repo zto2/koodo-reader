@@ -5,21 +5,15 @@ import CardList from "../cardList";
 import NoteTag from "../../../components/noteTag";
 import NoteModel from "../../../models/Note";
 import Empty from "../../emptyPage";
-import TagSelector from "../../../components/tagSelector/component";
-import TagManager from "../../../components/tagManager/component";
-import { TagService } from "../../../utils/service/tagService";
+
 import { Trans } from "react-i18next";
 
 class NoteList extends React.Component<NoteListProps, NoteListState> {
-  private tagService = TagService.getInstance();
-
   constructor(props: NoteListProps) {
     super(props);
     this.state = {
       tag: [],
       currentSelectedBook: "",
-      selectedTags: [],
-      isTagManagerOpen: false,
     };
   }
   UNSAFE_componentWillMount() {
@@ -29,22 +23,7 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
     this.setState({ tag });
   };
 
-  handleTagsChange = (selectedTags: string[]) => {
-    this.setState({ selectedTags });
-  };
 
-  handleOpenTagManager = () => {
-    this.setState({ isTagManagerOpen: true });
-  };
-
-  handleCloseTagManager = () => {
-    this.setState({ isTagManagerOpen: false });
-  };
-
-  handleTagsUpdated = () => {
-    // 重新获取笔记数据以反映标签变化
-    this.props.handleFetchNotes();
-  };
   handleFilter = (items: any, arr: number[]) => {
     let itemArr: any[] = [];
     arr.forEach((item) => {
@@ -71,10 +50,7 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
   render() {
     // Helper function to filter notes based on mode
     const filterNotesByMode = (notes: any[]) => {
-      if (this.props.tabMode === "knowledge") {
-        // Show all notes and highlights
-        return notes;
-      } else if (this.props.tabMode === "note") {
+      if (this.props.tabMode === "note") {
         // Show only notes (items with notes content)
         return notes.filter((item) => item.notes !== "");
       } else {
@@ -96,10 +72,7 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
       filteredNotes = this.filterTag(filteredNotes);
     }
 
-    // Apply new tag system filter
-    if (this.state.selectedTags.length > 0) {
-      filteredNotes = this.tagService.filterNotesByTags(filteredNotes, this.state.selectedTags);
-    }
+
 
     // Apply book filter
     if (this.state.currentSelectedBook) {
@@ -151,37 +124,16 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
         }
       >
         <div className="note-list-header">
-          {/* 新的标签选择器 */}
-          {this.props.tabMode === "knowledge" && (
-            <div className="knowledge-header-section">
-              <TagSelector
-                notes={this.props.notes}
-                selectedTags={this.state.selectedTags}
-                onTagsChange={this.handleTagsChange}
-                t={this.props.t}
-              />
+          <div className="note-list-header-main">
 
-              <div className="knowledge-actions">
-                <button
-                  className="tag-manager-button"
-                  onClick={this.handleOpenTagManager}
-                  title={this.props.t("Manage Tags")}
-                >
-                  <span className="icon-setting-line"></span>
-                  <span className="button-text">
-                    <Trans>Manage Tags</Trans>
-                  </span>
-                </button>
-              </div>
+            <div className="note-tags">
+              <NoteTag {...{ handleTag: this.handleTag }} />
             </div>
-          )}
-
-          {/* 保留原有的标签组件用于向后兼容 */}
-          <div className="note-tags">
-            <NoteTag {...{ handleTag: this.handleTag }} />
           </div>
+
+          {/* 右上角筛选器 */}
           {noteProps.cards.length > 0 && (
-            <div style={{ marginRight: "10px" }}>
+            <div className="note-list-filter-container">
               <span className="note-list-filter-label">
                 <Trans>Filter by book</Trans>
               </span>
@@ -189,6 +141,7 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
               <select
                 name=""
                 className="lang-setting-dropdown"
+                value={this.state.currentSelectedBook}
                 onChange={(event) => {
                   this.setState({
                     currentSelectedBook: event.target.value,
@@ -199,9 +152,7 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
                   { value: "", label: this.props.t("Please select") },
                   ...this.props.notes
                     .filter((item) => {
-                      if (this.props.tabMode === "knowledge") {
-                        return true; // Show all notes and highlights
-                      } else if (this.props.tabMode === "note") {
+                      if (this.props.tabMode === "note") {
                         return item.notes !== "";
                       } else {
                         return item.notes === "";
@@ -251,14 +202,7 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
           <CardList {...noteProps} />
         )}
 
-        {/* 标签管理器 */}
-        <TagManager
-          notes={this.props.notes}
-          isOpen={this.state.isTagManagerOpen}
-          onClose={this.handleCloseTagManager}
-          onTagsUpdated={this.handleTagsUpdated}
-          t={this.props.t}
-        />
+
       </div>
     );
   }

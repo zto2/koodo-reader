@@ -4,7 +4,7 @@ import Note from "../../../models/Note";
 import _ from "underscore";
 import { PopupNoteProps, PopupNoteState } from "./interface";
 import NoteTag from "../../noteTag";
-import TagInput from "../../tagInput/component";
+
 import NoteModel from "../../../models/Note";
 import { Trans } from "react-i18next";
 import toast from "react-hot-toast";
@@ -218,7 +218,10 @@ class PopupNote extends React.Component<PopupNoteProps, PopupNoteState> {
   render() {
     const PopupProps = {
       handleDigest: this.handleUpdateHighlight,
+      // 当ColorOption组件处于isEdit模式时，它使用了绝对定位（position: "absolute"），
+      // 这会导致它脱离正常的文档流，从而与其他元素重叠。
       isEdit: true,
+      inNotePopup: true,
     };
     let note: NoteModel;
     if (this.props.noteKey) {
@@ -236,22 +239,15 @@ class PopupNote extends React.Component<PopupNoteProps, PopupNoteState> {
           <div className="editor-box-parent">
             <textarea className="editor-box" />
           </div>
-          <div
-            className="note-tags-section"
-            style={{ marginTop: "15px", marginBottom: "15px" }}
-          >
+          <div className="note-tags-section">
             <div className="note-tags-label">
               <Trans>Tags</Trans>:
             </div>
-            <TagInput
-              notes={this.props.notes || []}
-              selectedTags={this.state.tag}
-              onTagsChange={this.handleTag}
-              placeholder={this.props.t("Add tags (e.g., #reading/tech/frontend)...")}
-              t={this.props.t}
-            />
+            <NoteTag {...{ handleTag: this.handleTag }} />
           </div>
-          <ColorOption {...PopupProps} />
+          <div className="note-color-section">
+            <ColorOption {...PopupProps} />
+          </div>
           <div className="note-button-container">
             <span
               className="book-manage-title"
