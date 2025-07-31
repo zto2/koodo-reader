@@ -143,3 +143,37 @@ export const convertArrayToCSV = (array) => {
   });
   return csvContent;
 };
+
+// 导出所有内容（笔记和高亮）到单个CSV文件
+export const exportAllToCSV = (allNotes: Note[], books: Book[]) => {
+  let data = allNotes.map((item) => {
+    let book = books.filter((subitem) => subitem.key === item.bookKey)[0];
+    let bookName = book ? book.name : "Unknown book";
+    let bookAuthor = book ? book.author : "Unknown author";
+    let type = item.notes !== "" ? "Note" : "Highlight";
+
+    return {
+      type: type,
+      ...item,
+      date: `${item.date.year}-${
+        item.date.month <= 9 ? "0" + item.date.month : item.date.month
+      }-${item.date.day <= 9 ? "0" + item.date.day : item.date.day}`,
+      tag: item.tag.join(","),
+      color: [
+        ...["#FBF1D1", "#EFEEB0", "#CAEFC9", "#76BEE9"],
+        ...["#FF0000", "#000080", "#0000FF", "#2EFF2E"],
+      ][item.color],
+      highlightType: item.color > 3 ? "line" : "background",
+      bookName: bookName,
+      bookAuthor: bookAuthor,
+    };
+  });
+
+  saveAs(
+    new Blob([convertArrayToCSV(data)], { type: "text/csv,charset=UTF-8" }),
+    "KoodoReader-All-" +
+      `${year}-${month <= 9 ? "0" + month : month}-${
+        day <= 9 ? "0" + day : day
+      }.csv`
+  );
+};

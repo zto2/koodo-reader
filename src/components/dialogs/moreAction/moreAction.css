@@ -36,8 +36,44 @@
 
 .action-name {
   font-size: 15px;
-  text-align: center;
+  text-align: left;
   line-height: 25px;
   margin-left: 15px;
   font-weight: 500;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+/* 只对有子菜单的项目使用space-between布局 */
+.export-options-trigger .action-name,
+.dictionary-options-trigger .action-name {
+  justify-content: space-between;
+}
+
+.submenu-arrow {
+  font-family: 'icomoon' !important;
+  font-size: 12px;
+  opacity: 0.7;
+  margin-right: 5px;
+  transform: rotate(-90deg);
+  transition: opacity 0.2s ease;
+}
+
+.submenu-arrow:before {
+  content: "\e940"; /* icon-dropdown rotated to point right */
+}
+
+.export-options-trigger {
+  position: relative;
+}
+
+.dictionary-options-trigger {
+  position: relative;
+}
+
+.export-options-trigger:hover .submenu-arrow,
+.dictionary-options-trigger:hover .submenu-arrow {
+  opacity: 1;
 }

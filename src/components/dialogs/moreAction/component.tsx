@@ -5,12 +5,7 @@ import { MoreActionProps, MoreActionState } from "./interface";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
 import BookUtil from "../../../utils/file/bookUtil";
-import {
-  exportDictionaryHistory,
-  exportHighlights,
-  exportNotes,
-} from "../../../utils/file/export";
-import DatabaseService from "../../../utils/storage/databaseService";
+
 import {
   BookHelper,
   ConfigService,
@@ -18,11 +13,86 @@ import {
 import * as Kookit from "../../../assets/lib/kookit.min";
 import { isElectron } from "react-device-detect";
 import { getPdfPassword, getStorageLocation } from "../../../utils/common";
+import ExportSubmenu from "../exportSubmenu";
+import DictionarySubmenu from "../dictionarySubmenu";
 class ActionDialog extends React.Component<MoreActionProps, MoreActionState> {
   constructor(props: MoreActionProps) {
     super(props);
-    this.state = {};
+    this.state = {
+      isShowExportSubmenu: false,
+      isShowDictionarySubmenu: false,
+      submenuPosition: { x: 0, y: 0 },
+      dictionarySubmenuPosition: { x: 0, y: 0 },
+    };
   }
+
+  handleExportSubmenuToggle = (show: boolean, event?: React.MouseEvent) => {
+    if (show && event) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      this.setState({
+        isShowExportSubmenu: true,
+        submenuPosition: {
+          x: rect.right + 5,
+          y: rect.top,
+        },
+      });
+    } else {
+      this.setState({ isShowExportSubmenu: false });
+    }
+  };
+
+  handleExportOptionsMouseEnter = (event: React.MouseEvent) => {
+    // 关闭其他子菜单
+    this.setState({ isShowDictionarySubmenu: false });
+    this.handleExportSubmenuToggle(true, event);
+  };
+
+  handleExportOptionsMouseLeave = () => {
+    // 延迟隐藏，允许用户移动到子菜单
+    setTimeout(() => {
+      if (!this.state.isShowExportSubmenu) {
+        this.handleExportSubmenuToggle(false);
+      }
+    }, 200);
+  };
+
+  handleDictionarySubmenuToggle = (show: boolean, event?: React.MouseEvent) => {
+    if (show && event) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      this.setState({
+        isShowDictionarySubmenu: true,
+        dictionarySubmenuPosition: {
+          x: rect.right + 5,
+          y: rect.top,
+        },
+      });
+    } else {
+      this.setState({ isShowDictionarySubmenu: false });
+    }
+  };
+
+  handleDictionaryOptionsMouseEnter = (event: React.MouseEvent) => {
+    // 关闭其他子菜单
+    this.setState({ isShowExportSubmenu: false });
+    this.handleDictionarySubmenuToggle(true, event);
+  };
+
+  handleDictionaryOptionsMouseLeave = () => {
+    // 延迟隐藏，允许用户移动到子菜单
+    setTimeout(() => {
+      if (!this.state.isShowDictionarySubmenu) {
+        this.handleDictionarySubmenuToggle(false);
+      }
+    }, 200);
+  };
+
+  handleOtherMenuItemMouseEnter = () => {
+    // 关闭所有子菜单
+    this.setState({
+      isShowExportSubmenu: false,
+      isShowDictionarySubmenu: false,
+    });
+  };
   render() {
     return (
       <div
@@ -50,6 +120,7 @@ class ActionDialog extends React.Component<MoreActionProps, MoreActionState> {
           <div
             className="action-dialog-edit"
             style={{ paddingLeft: "0px" }}
+            onMouseEnter={this.handleOtherMenuItemMouseEnter}
             onClick={() => {
               BookUtil.fetchBook(
                 this.props.currentBook.key,
@@ -71,75 +142,31 @@ class ActionDialog extends React.Component<MoreActionProps, MoreActionState> {
             </p>
           </div>
           <div
-            className="action-dialog-edit"
-            style={{ paddingLeft: "0px" }}
-            onClick={async () => {
-              let books = await DatabaseService.getAllRecords("books");
-              let notes = (
-                await DatabaseService.getRecordsByBookKey(
-                  this.props.currentBook.key,
-                  "notes"
-                )
-              ).filter((note) => note.notes !== "");
-              if (notes.length > 0) {
-                exportNotes(notes, books);
-                toast.success(this.props.t("Export successful"));
-              } else {
-                toast(this.props.t("Nothing to export"));
-              }
-            }}
+            className="action-dialog-edit export-options-trigger"
+            style={{ paddingLeft: "0px", position: "relative" }}
+            onMouseEnter={this.handleExportOptionsMouseEnter}
+            onMouseLeave={this.handleExportOptionsMouseLeave}
           >
             <p className="action-name">
-              <Trans>Export notes</Trans>
+              <Trans>Export Options</Trans>
+              <span className="icon-dropdown submenu-arrow"></span>
             </p>
           </div>
           <div
-            className="action-dialog-edit"
-            style={{ paddingLeft: "0px" }}
-            onClick={async () => {
-              let books = await DatabaseService.getAllRecords("books");
-              let highlights = (
-                await DatabaseService.getRecordsByBookKey(
-                  this.props.currentBook.key,
-                  "notes"
-                )
-              ).filter((note) => note.notes === "");
-              if (highlights.length > 0) {
-                exportHighlights(highlights, books);
-                toast.success(this.props.t("Export successful"));
-              } else {
-                toast(this.props.t("Nothing to export"));
-              }
-            }}
-          >
-            <p className="action-name">
-              <Trans>Export highlights</Trans>
-            </p>
-          </div>
-          <div
-            className="action-dialog-edit"
-            style={{ paddingLeft: "0px" }}
-            onClick={async () => {
-              let dictHistory = await DatabaseService.getRecordsByBookKey(
-                this.props.currentBook.key,
-                "words"
-              );
-              let books = await DatabaseService.getAllRecords("books");
-              if (dictHistory.length > 0) {
-                exportDictionaryHistory(dictHistory, books);
-                toast.success(this.props.t("Export successful"));
-              } else {
-                toast(this.props.t("Nothing to export"));
-              }
-            }}
+            className="action-dialog-edit dictionary-options-trigger"
+            style={{ paddingLeft: "0px", position: "relative" }}
+            onMouseEnter={this.handleDictionaryOptionsMouseEnter}
+            onMouseLeave={this.handleDictionaryOptionsMouseLeave}
           >
             <p className="action-name">
               <Trans>Export dictionary history</Trans>
+              <span className="icon-dropdown submenu-arrow"></span>
             </p>
           </div>
           <div
             className="action-dialog-edit"
             style={{ paddingLeft: "0px" }}
+            onMouseEnter={this.handleOtherMenuItemMouseEnter}
             onClick={() => {
               if (this.props.currentBook.format === "PDF") {
                 toast(this.props.t("Not supported yet"));
@@ -193,6 +220,7 @@ class ActionDialog extends React.Component<MoreActionProps, MoreActionState> {
           <div
             className="action-dialog-edit"
             style={{ paddingLeft: "0px" }}
+            onMouseEnter={this.handleOtherMenuItemMouseEnter}
             onClick={async () => {
               await BookUtil.deleteBook(
                 "cache-" + this.props.currentBook.key,
@@ -209,6 +237,7 @@ class ActionDialog extends React.Component<MoreActionProps, MoreActionState> {
             <div
               className="action-dialog-edit"
               style={{ paddingLeft: "0px" }}
+              onMouseEnter={this.handleOtherMenuItemMouseEnter}
               onClick={async () => {
                 if (!this.props.currentBook.path) {
                   toast.error(this.props.t("No path found for this book"));
@@ -242,6 +271,27 @@ class ActionDialog extends React.Component<MoreActionProps, MoreActionState> {
             </div>
           )}
         </div>
+
+        {/* Export Submenu */}
+        <ExportSubmenu
+          currentBook={this.props.currentBook}
+          books={this.props.books}
+          notes={this.props.notes}
+          isVisible={this.state.isShowExportSubmenu}
+          position={this.state.submenuPosition}
+          onClose={() => this.handleExportSubmenuToggle(false)}
+          t={this.props.t}
+        />
+
+        {/* Dictionary Submenu */}
+        <DictionarySubmenu
+          currentBook={this.props.currentBook}
+          books={this.props.books}
+          isVisible={this.state.isShowDictionarySubmenu}
+          position={this.state.dictionarySubmenuPosition}
+          onClose={() => this.handleDictionarySubmenuToggle(false)}
+          t={this.props.t}
+        />
       </div>
     );
   }
