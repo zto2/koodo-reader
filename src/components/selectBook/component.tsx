@@ -7,14 +7,13 @@ import { withRouter } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
   exportBooks,
-  exportDictionaryHistory,
-  exportHighlights,
-  exportNotes,
 } from "../../utils/file/export";
 import BookUtil from "../../utils/file/bookUtil";
 import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 import DatabaseService from "../../utils/storage/databaseService";
 import { preCacheAllBooks } from "../../utils/common";
+import ExportSubmenu from "../dialogs/exportSubmenu";
+import DictionarySubmenu from "../dialogs/dictionarySubmenu";
 class SelectBook extends React.Component<BookListProps, BookListState> {
   constructor(props: BookListProps) {
     super(props);
@@ -24,6 +23,10 @@ class SelectBook extends React.Component<BookListProps, BookListState> {
       favoriteBooks: Object.keys(
         ConfigService.getAllListConfig("favoriteBooks")
       ).length,
+      isShowExportSubmenu: false,
+      isShowDictionarySubmenu: false,
+      submenuPosition: { x: 0, y: 0 },
+      dictionarySubmenuPosition: { x: 0, y: 0 },
     };
   }
   handleFilterShelfBook = (items: BookModel[]) => {
@@ -64,6 +67,110 @@ class SelectBook extends React.Component<BookListProps, BookListState> {
     });
     return shelfItems;
   }
+
+  // 子菜单处理方法
+  handleExportSubmenuToggle = (show: boolean, event?: React.MouseEvent) => {
+    if (show && event) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const submenuHeight = 300; // 预估子菜单高度
+      const windowHeight = window.innerHeight;
+      const margin = 20; // 边距
+
+      // 智能定位：如果是底部菜单且会被截断，则向上偏移
+      const spaceBelow = windowHeight - rect.bottom;
+      const shouldPositionAbove = spaceBelow < submenuHeight + margin;
+
+      let yPosition: number;
+      if (shouldPositionAbove) {
+        // 向上显示，确保不超出屏幕顶部
+        yPosition = Math.max(margin, rect.top - submenuHeight + rect.height);
+      } else {
+        // 向下显示
+        yPosition = rect.top;
+      }
+
+      this.setState({
+        isShowExportSubmenu: true,
+        submenuPosition: {
+          x: rect.right - 25, // 调整水平间距以匹配单个书籍菜单的视觉效果
+          y: yPosition,
+        },
+      });
+    } else {
+      this.setState({ isShowExportSubmenu: false });
+    }
+  };
+
+  handleDictionarySubmenuToggle = (show: boolean, event?: React.MouseEvent) => {
+    if (show && event) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const submenuHeight = 150; // 预估词典子菜单高度
+      const windowHeight = window.innerHeight;
+      const margin = 20; // 边距
+
+      // 智能定位：如果是底部菜单且会被截断，则向上偏移
+      const spaceBelow = windowHeight - rect.bottom;
+      const shouldPositionAbove = spaceBelow < submenuHeight + margin;
+
+      let yPosition: number;
+      if (shouldPositionAbove) {
+        // 向上显示，确保不超出屏幕顶部
+        yPosition = Math.max(margin, rect.top - submenuHeight + rect.height);
+      } else {
+        // 向下显示
+        yPosition = rect.top;
+      }
+
+      this.setState({
+        isShowDictionarySubmenu: true,
+        dictionarySubmenuPosition: {
+          x: rect.right - 25, // 调整水平间距以匹配单个书籍菜单的视觉效果
+          y: yPosition + 35,  //悬浮窗向下偏移35px，即调整"export dictionary history"
+        },
+      });
+    } else {
+      this.setState({ isShowDictionarySubmenu: false });
+    }
+  };
+
+  handleExportOptionsMouseEnter = (event: React.MouseEvent) => {
+    // 关闭其他子菜单
+    this.setState({ isShowDictionarySubmenu: false });
+    this.handleExportSubmenuToggle(true, event);
+  };
+
+  handleExportOptionsMouseLeave = () => {
+    // 延迟隐藏，允许用户移动到子菜单
+    setTimeout(() => {
+      if (!this.state.isShowExportSubmenu) {
+        this.handleExportSubmenuToggle(false);
+      }
+    }, 200);
+  };
+
+  handleDictionaryOptionsMouseEnter = (event: React.MouseEvent) => {
+    // 关闭其他子菜单
+    this.setState({ isShowExportSubmenu: false });
+    this.handleDictionarySubmenuToggle(true, event);
+  };
+
+  handleDictionaryOptionsMouseLeave = () => {
+    // 延迟隐藏，允许用户移动到子菜单
+    setTimeout(() => {
+      if (!this.state.isShowDictionarySubmenu) {
+        this.handleDictionarySubmenuToggle(false);
+      }
+    }, 200);
+  };
+
+  handleOtherMenuItemMouseEnter = () => {
+    // 关闭所有子菜单
+    this.setState({
+      isShowExportSubmenu: false,
+      isShowDictionarySubmenu: false,
+    });
+  };
+
   render() {
     return (
       <div
@@ -169,79 +276,33 @@ class SelectBook extends React.Component<BookListProps, BookListState> {
                       toast(this.props.t("Nothing to export"));
                     }
                   }}
+                  onMouseEnter={this.handleOtherMenuItemMouseEnter}
                 >
                   <Trans>Export books</Trans>
                 </span>
                 <span
-                  className="book-manage-title select-book-action"
-                  onClick={async () => {
-                    let selectedBooks =
-                      await DatabaseService.getRecordsByBookKeys(
-                        this.props.selectedBooks,
-                        "books"
-                      );
-                    let notes = (
-                      await DatabaseService.getRecordsByBookKeys(
-                        this.props.selectedBooks,
-                        "notes"
-                      )
-                    ).filter((note) => note.notes !== "");
-                    if (notes.length > 0) {
-                      exportNotes(notes, selectedBooks);
-                      toast.success(this.props.t("Export successful"));
-                    } else {
-                      toast(this.props.t("Nothing to export"));
-                    }
-                  }}
+                  className="book-manage-title select-book-action export-options-trigger"
+                  style={{ position: "relative" }}
+                  onMouseEnter={this.handleExportOptionsMouseEnter}
+                  onMouseLeave={this.handleExportOptionsMouseLeave}
                 >
-                  <Trans>Export notes</Trans>
+                  <Trans>Export Options</Trans>
+                  <span className="icon-dropdown submenu-arrow"></span>
                 </span>
                 <span
-                  className="book-manage-title select-book-action"
-                  onClick={async () => {
-                    let selectedBooks =
-                      await DatabaseService.getRecordsByBookKeys(
-                        this.props.selectedBooks,
-                        "books"
-                      );
-                    let highlights = (
-                      await DatabaseService.getRecordsByBookKeys(
-                        this.props.selectedBooks,
-                        "notes"
-                      )
-                    ).filter((note) => note.notes === "");
-                    if (highlights.length > 0) {
-                      exportHighlights(highlights, selectedBooks);
-                      toast.success(this.props.t("Export successful"));
-                    } else {
-                      toast(this.props.t("Nothing to export"));
-                    }
-                  }}
-                >
-                  <Trans>Export highlights</Trans>
-                </span>
-                <span
-                  className="book-manage-title select-book-action"
-                  onClick={async () => {
-                    let selectedBooks =
-                      await DatabaseService.getRecordsByBookKeys(
-                        this.props.selectedBooks,
-                        "books"
-                      );
-                    let dictHistory =
-                      await DatabaseService.getRecordsByBookKeys(
-                        this.props.selectedBooks,
-                        "words"
-                      );
-                    if (dictHistory.length > 0) {
-                      exportDictionaryHistory(dictHistory, selectedBooks);
-                      toast.success(this.props.t("Export successful"));
-                    } else {
-                      toast(this.props.t("Nothing to export"));
-                    }
-                  }}
+                  className="book-manage-title select-book-action dictionary-options-trigger" 
+                  // className中的多个类名分别对应不同的CSS样式:
+                  // - book-manage-title: 基础菜单项样式
+                  // - select-book-action: 选择书籍操作的通用样式
+                  // - dictionary-options-trigger: 触发词典子菜单的特定样式
+                  // 要调整悬浮窗位置，可以修改handleDictionarySubmenuToggle方法中的y坐标计算:
+                  // 比如 y: rect.top + 20 来向下偏移20px
+                  style={{ position: "relative" }}
+                  onMouseEnter={this.handleDictionaryOptionsMouseEnter}
+                  onMouseLeave={this.handleDictionaryOptionsMouseLeave}
                 >
                   <Trans>Export dictionary history</Trans>
+                  <span className="icon-dropdown submenu-arrow"></span>
                 </span>
                 <span
                   className="book-manage-title select-book-action"
@@ -258,6 +319,7 @@ class SelectBook extends React.Component<BookListProps, BookListState> {
                       toast(this.props.t("Nothing to precache"));
                     }
                   }}
+                  onMouseEnter={this.handleOtherMenuItemMouseEnter}
                 >
                   <Trans>Pre-cache</Trans>
                 </span>
@@ -282,6 +344,7 @@ class SelectBook extends React.Component<BookListProps, BookListState> {
                       toast.success(this.props.t("Deletion successful"));
                     }
                   }}
+                  onMouseEnter={this.handleOtherMenuItemMouseEnter}
                 >
                   <Trans>Delete pre-cache</Trans>
                 </span>
@@ -314,6 +377,27 @@ class SelectBook extends React.Component<BookListProps, BookListState> {
             </span>
           </>
         )}
+
+        {/* Export Submenu */}
+        <ExportSubmenu
+          currentBook={this.props.books[0] || {} as any}
+          books={this.props.books}
+          notes={this.props.notes}
+          isVisible={this.state.isShowExportSubmenu}
+          position={this.state.submenuPosition}
+          onClose={() => this.handleExportSubmenuToggle(false)}
+          t={this.props.t}
+        />
+
+        {/* Dictionary Submenu */}
+        <DictionarySubmenu
+          currentBook={this.props.books[0] || {} as any}
+          books={this.props.books}
+          isVisible={this.state.isShowDictionarySubmenu}
+          position={this.state.dictionarySubmenuPosition}
+          onClose={() => this.handleDictionarySubmenuToggle(false)}
+          t={this.props.t}
+        />
       </div>
     );
   }
