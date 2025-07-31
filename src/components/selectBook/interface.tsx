@@ -19,4 +19,8 @@ export interface BookListState {
   isShowExport: boolean;
   isOpenDelete: boolean;
   favoriteBooks: number;
+  isShowExportSubmenu: boolean;
+  isShowDictionarySubmenu: boolean;
+  submenuPosition: { x: number; y: number };
+  dictionarySubmenuPosition: { x: number; y: number };
 }
