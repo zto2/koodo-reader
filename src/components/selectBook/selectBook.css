@@ -6,7 +6,8 @@
   z-index: 10;
   animation: popup 0.1s ease-in-out 0s 1;
   border-radius: 5px;
-  width: 150px;
+  width: max-content;
+  min-width: 160px;
   padding: 5px;
 }
 .select-more-actions-container {
@@ -14,4 +15,45 @@
 }
 .select-book-action {
   line-height: 20px;
+  position: relative;
+
+}
+
+/* 只对有子菜单的项目使用flex布局 */
+.select-book-action.export-options-trigger,
+.select-book-action.dictionary-options-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 子菜单箭头样式 */
+.select-book-action .submenu-arrow {
+  font-family: 'icomoon' !important;
+  font-size: 12px;
+  opacity: 0.7;
+  margin-right: 5px;
+  transform: rotate(-90deg);
+  transition: opacity 0.2s ease;
+}
+
+.select-book-action .submenu-arrow:before {
+  content: "\e940"; /* icon-dropdown rotated to point right */
+}
+
+.select-book-action:hover .submenu-arrow {
+  opacity: 1;
+}
+
+/* 确保子菜单在批量操作工具栏中正确显示 */
+.select-more-actions .export-submenu-container,
+.select-more-actions .dictionary-submenu-container {
+  z-index: 15; /* 确保子菜单在工具栏之上 */
+}
+
+/* 为向上显示的子菜单优化样式 */
+.select-more-actions .export-submenu-arrow,
+.select-more-actions .dictionary-submenu-arrow {
+  /* 当子菜单向上显示时，箭头可能需要调整位置 */
+  z-index: 16;
 }
