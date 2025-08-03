@@ -1,5 +1,7 @@
 .action-dialog-container {
-  width: 200px;
+  min-width: 200px;
+  width: max-content;
+  max-width: 300px;
   /* height: 340px; */
   opacity: 1;
   position: fixed;
@@ -50,15 +52,18 @@
 .export-options-trigger .action-name,
 .dictionary-options-trigger .action-name {
   justify-content: space-between;
+  gap: 15px;
 }
 
 .submenu-arrow {
   font-family: 'icomoon' !important;
   font-size: 12px;
   opacity: 0.7;
-  margin-right: 5px;
+  margin-right: 8px;
+  margin-left: 8px;
   transform: rotate(-90deg);
   transition: opacity 0.2s ease;
+  flex-shrink: 0;
 }
 
 .submenu-arrow:before {
