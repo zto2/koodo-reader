@@ -1,5 +1,7 @@
 .dictionary-submenu-container {
-  width: 200px;
+  min-width: 200px;
+  width: max-content;
+  max-width: 350px;
   position: fixed;
   z-index: 10;
   animation: submenu-slide-in 0.15s ease-in-out;
