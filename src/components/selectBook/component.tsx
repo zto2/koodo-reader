@@ -254,8 +254,19 @@ class SelectBook extends React.Component<BookListProps, BookListState> {
               <div
                 className="select-more-actions"
                 style={this.state.isShowExport ? {} : { display: "none" }}
-                onMouseLeave={() => {
-                  this.setState({ isShowExport: false });
+                onMouseLeave={(event) => {
+                  const related = (event.relatedTarget as Element) || null;
+                  const goingIntoSubmenu =
+                    related instanceof Element &&
+                    (related.closest('.export-submenu-container') ||
+                      related.closest('.dictionary-submenu-container'));
+                  if (!goingIntoSubmenu) {
+                    this.setState({
+                      isShowExport: false,
+                      isShowExportSubmenu: false,
+                      isShowDictionarySubmenu: false,
+                    });
+                  }
                 }}
                 onMouseEnter={(event) => {
                   this.setState({ isShowExport: true });
